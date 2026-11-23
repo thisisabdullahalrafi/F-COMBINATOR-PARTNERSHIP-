@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F COMBINATOR — Partnership Manager</title>
+<link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--bg:#080808;--panel:#111;--panel2:#171717;--line:rgba(255,255,255,.11);--muted:#a4a4a4;--text:#f7f7f7;--orange:#D35400;--orange-soft:#D35400;--max:1200px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;letter-spacing:-.012em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0 0 auto;height:780px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 73% 22%,rgba(255,81,0,.2),transparent 38%),radial-gradient(ellipse at 90% 5%,rgba(255,132,37,.09),transparent 30%),linear-gradient(180deg,rgba(255,106,0,.03),transparent 40%)}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at 50% 30%,#000 20%,transparent 70%)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.shell{max-width:var(--max);width:calc(100% - 48px);margin:auto;padding:26px 0 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:62px}
+.brand{display:flex;align-items:center;gap:12px}.brand img{width:43px;height:43px;object-fit:cover;border-radius:10px;background:#fff}
+.brand-name{font:700 15px 'Space Grotesk';letter-spacing:.075em}.brand-sub{font-size:9px;letter-spacing:.2em;color:#9c9c9c;margin-top:5px;font-weight:700}
+.header-right{font:700 10px 'Space Grotesk';color:#aaa;letter-spacing:.18em;text-transform:uppercase}
+.hero{position:relative;padding:0 0 42px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:10px;color:var(--orange-soft);font-weight:800;letter-spacing:.22em;text-transform:uppercase}
+.hero h1{font:600 clamp(38px,6vw,70px)/.98 'Space Grotesk';letter-spacing:-.065em;margin:18px 0 16px;max-width:760px}
+.hero h1 span{color:var(--orange)}
+.hero p{color:#aaa;max-width:620px;line-height:1.9;font-size:14px;margin:0}
+.hero-line{height:2px;width:62px;background:var(--orange);margin-top:25px;box-shadow:0 0 20px #ff6a0055}
+.tabs{display:flex;gap:28px;border-bottom:1px solid var(--line);margin-bottom:24px}.tab{background:none;border:0;color:#8e8e8e;padding:13px 2px;font:700 12px 'Manrope';border-bottom:2px solid transparent}.tab.active{color:#fff;border-color:var(--orange)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,rgba(22,22,22,.96),rgba(13,13,13,.98));border:1px solid var(--line);border-radius:19px;padding:25px;box-shadow:0 22px 65px #0005}
+.section-title{font:700 14px 'Space Grotesk';letter-spacing:.01em;margin:0 0 19px;display:flex;align-items:center;gap:11px}
+.section-title:before{content:"";width:3px;height:18px;border-radius:4px;background:var(--orange);box-shadow:0 0 14px #ff6a0066}
+.form-section{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.085)}.form-section:last-of-type{border:0;margin:0;padding:0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.field.full{grid-column:1/-1}
+label{display:block;color:#d1d1d1;font-size:11px;font-weight:800;letter-spacing:.025em;margin:0 0 8px}.required{color:var(--orange)}
+input,select,textarea{width:100%;border:1px solid #333;background:#0b0b0b;color:#f3f3f3;border-radius:10px;padding:12px 13px;outline:none;transition:.2s}
+input,select{height:46px}textarea{min-height:105px;resize:vertical;line-height:1.65}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px #ff6a0019}
+input::placeholder,textarea::placeholder{color:#666}select{color-scheme:dark}
+.hint{font-size:10px;color:#858585;margin-top:7px;line-height:1.6}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:23px}
+.btn{border:1px solid #393939;background:#191919;color:#eee;border-radius:999px;padding:12px 18px;font-size:11px;font-weight:800;letter-spacing:.04em;transition:.2s}
+.btn:hover{transform:translateY(-2px);border-color:var(--orange)}.btn.primary{background:var(--orange);border-color:var(--orange);color:#130d08;box-shadow:0 8px 25px #ff6a0022}.btn.primary:hover{background:#ff812c}
+.sidebox{position:sticky;top:18px;background:radial-gradient(ellipse at 85% 0%,#ff6a001c,transparent 50%),linear-gradient(145deg,#151515,#0d0d0d)}
+.sidebox h3{font:700 17px 'Space Grotesk';margin:0 0 12px}.sidebox p{font-size:12px;line-height:1.85;color:#a5a5a5;margin:0}
+.side-mark{font:700 10px 'Space Grotesk';letter-spacing:.15em;color:var(--orange);margin-top:21px;padding-top:15px;border-top:1px solid var(--line)}
+.records-top{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:18px}.records-top input{max-width:420px}
+.record-list{display:grid;gap:12px}.record-card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(110deg,#151515,#101010);padding:18px;display:flex;justify-content:space-between;gap:15px;align-items:center;transition:.2s}
+.record-card:hover{border-color:#ff6a0066;transform:translateY(-2px)}
+.record-card h3{font:700 16px 'Space Grotesk';margin:0 0 7px}.record-card p{font-size:11px;color:#9b9b9b;margin:0;line-height:1.75}
+.record-id{color:var(--orange-soft);font:700 10px 'Space Grotesk';letter-spacing:.11em;margin-bottom:7px}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap}.small{padding:8px 12px;font-size:10px}
+.empty{padding:38px 18px;text-align:center;color:#929292;border:1px dashed #393939;border-radius:13px;font-size:12px}
+.footer{margin-top:48px;padding-top:19px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:#777;font:700 9px 'Space Grotesk';letter-spacing:.14em}
+.footer strong{color:#eee}.footer .tagline{color:var(--orange)}
+.modal{display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 78% 5%,rgba(255,106,0,.17),transparent 34%),linear-gradient(180deg,rgba(5,5,5,.97),rgba(8,8,8,.985));z-index:10;padding:20px;overflow:auto;backdrop-filter:blur(14px)}.modal.open{display:block}
+.modal-head{max-width:900px;margin:0 auto 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#fff;font:700 12px 'Space Grotesk';letter-spacing:.08em}
+.preview-wrap{width:100%;max-width:210mm;margin:0 auto;padding:0;background:#fff}
+.preview-paper{background:#fff;color:#111;width:210mm;min-height:297mm;margin:0 auto;padding:12mm 13mm;box-shadow:0 18px 55px #0008;border:1px solid #ddd;border-radius:0;font-family:'DM Sans',Arial,sans-serif;position:relative;overflow:visible}
+.print-head{display:flex;align-items:center;justify-content:space-between;gap:10mm;border-bottom:1px solid #222;padding-bottom:5mm}
+.print-brand-group{display:flex;align-items:center;gap:4mm}.preview-paper .print-logo{width:19mm;height:19mm;object-fit:contain;background:#fff;border:1px solid #ddd;border-radius:2mm;padding:1mm;flex:0 0 19mm}
+.print-brand{font:800 17pt 'Manrope',Arial;color:#111;letter-spacing:-.035em}.print-kicker{font:800 6.5pt 'Manrope';letter-spacing:.16em;color:#D35400;margin-top:1.5mm}
+.print-meta{display:grid;gap:2mm;text-align:right}.meta-item span{display:block;font:700 6pt 'Manrope';letter-spacing:.12em;color:#555}.meta-item strong{display:block;font:800 8pt 'Manrope';color:#111;margin-top:1mm}
+.organizer-line{padding:3mm 0;border-bottom:1px solid #bbb;font:800 6.5pt 'Manrope';letter-spacing:.14em;color:#D35400}
+.print-heading{display:block;margin:7mm 0 5mm}
+.print-title{font:800 21pt 'Manrope';letter-spacing:-.04em;color:#111;margin:0}
+.print-id{display:block;margin-top:1.5mm;color:#222;font:700 8pt 'Manrope';letter-spacing:.06em}
+.print-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;margin-bottom:5mm}
+.summary-box{background:#fff;border:1px solid #ccc;border-top:1mm solid #D35400;border-radius:1.5mm;padding:3mm 3.5mm;min-width:0}
+.summary-box span{display:block;font:800 5.8pt 'Manrope';letter-spacing:.1em;color:#555;text-transform:uppercase}
+.summary-box strong{display:block;font:800 8.5pt 'Manrope';color:#111;margin-top:1.2mm;overflow-wrap:anywhere}
+.print-section{margin-top:5mm;break-inside:auto}
+.print-section h3{font:800 8pt 'Manrope';letter-spacing:.12em;text-transform:uppercase;color:#D35400;border-bottom:1px solid #bbb;padding-bottom:2mm;margin:0 0 3mm}
+.print-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm 8mm}
+.print-field{min-width:0;break-inside:avoid;padding:1mm 0}
+.print-field.full{grid-column:1/-1}
+.print-label{font:800 6.2pt 'Manrope';letter-spacing:.09em;text-transform:uppercase;color:#555;margin-bottom:1.2mm}
+.print-value{font:600 9pt/1.5 'DM Sans',Arial,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;color:#111}
+.print-highlight .print-value{font-weight:800;color:#111}
+.print-details{background:#fff;border:1px solid #ccc;border-left:1.2mm solid #D35400;border-radius:1mm;padding:3mm 4mm}
+.signatures{display:grid;grid-template-columns:1fr 1fr;gap:16mm;margin:11mm 2% 4mm;break-inside:avoid}
+.sign-person{text-align:center;min-width:0;padding:2mm 1mm}
+.sign-person-name{font:800 10pt/1.2 'Manrope';letter-spacing:.02em;color:#111;text-transform:uppercase;overflow-wrap:anywhere}
+.sign-person-title{font:700 8pt/1.35 'Manrope';color:#333;text-transform:uppercase;margin-top:1mm}
+.sign-person-org{font:800 8pt/1.35 'Manrope';color:#D35400;text-transform:uppercase;margin-top:.8mm}
+.sign-line{height:12mm;border-bottom:1px solid #333;margin-bottom:2mm}
+.sign-caption{font:700 6pt 'Manrope';letter-spacing:.08em;color:#555;text-transform:uppercase}
+.print-thanks{text-align:center;font:700 9pt/1.4 'Manrope';color:#D35400;margin:7mm 0 0;padding-top:3mm;border-top:1px solid #bbb}
+.print-footer{border-top:1px solid #bbb;padding-top:2.5mm;margin-top:5mm;display:flex;justify-content:space-between;gap:10px;color:#555;font:700 5.8pt 'Manrope';letter-spacing:.09em}
+
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html, body { width:210mm!important; min-height:297mm!important; margin:0!important; padding:0!important; background:#fff!important; color:#111!important; overflow:visible!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+  body::before, body::after, .shell, .modal-head { display:none!important; content:none!important; }
+  #previewModal { display:block!important; position:static!important; inset:auto!important; width:210mm!important; min-height:297mm!important; margin:0!important; padding:0!important; overflow:visible!important; background:#fff!important; color:#111!important; border:0!important; box-shadow:none!important; }
+  .preview-wrap { display:block!important; width:210mm!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; background:#fff!important; border:0!important; box-shadow:none!important; }
+  .preview-paper { display:block!important; width:210mm!important; max-width:none!important; min-height:297mm!important; height:auto!important; margin:0!important; padding:12mm 13mm!important; overflow:visible!important; border:0!important; border-radius:0!important; box-shadow:none!important; background:#fff!important; color:#111!important; font-family:'DM Sans',Arial,sans-serif!important; }
+  .print-head { border-bottom:1px solid #222!important; padding-bottom:5mm!important; break-inside:avoid!important; }
+  .preview-paper .print-logo { width:19mm!important; height:19mm!important; flex-basis:19mm!important; object-fit:contain!important; background:#fff!important; border:1px solid #ddd!important; border-radius:2mm!important; padding:1mm!important; }
+  .print-brand { color:#111!important; font-size:17pt!important; }
+  .print-kicker { color:#D35400!important; font-size:6.5pt!important; }
+  .print-meta .meta-item span, .print-label { color:#555!important; }
+  .print-meta .meta-item strong, .print-title, .print-value, .print-highlight .print-value { color:#111!important; }
+  .organizer-line { color:#D35400!important; border-color:#bbb!important; padding:3mm 0!important; }
+  .print-heading { display:block!important; margin:7mm 0 5mm!important; break-after:avoid!important; }
+  .print-title { font-size:21pt!important; line-height:1.1!important; margin:0!important; }
+  .print-id { display:block!important; margin-top:1.5mm!important; padding:0!important; background:transparent!important; color:#222!important; border:0!important; font:700 8pt 'Manrope',Arial,sans-serif!important; }
+  .print-summary { gap:3mm!important; margin-bottom:5mm!important; break-inside:avoid!important; }
+  .summary-box { background:#fff!important; border:1px solid #ccc!important; border-top:1mm solid #D35400!important; border-radius:1.5mm!important; padding:3mm 3.5mm!important; }
+  .summary-box span { color:#555!important; }
+  .summary-box strong { color:#111!important; }
+  .print-section { display:block!important; margin-top:5mm!important; break-inside:auto!important; page-break-inside:auto!important; }
+  .print-section h3 { color:#D35400!important; border-color:#bbb!important; break-after:avoid!important; }
+  .print-grid { display:grid!important; grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important; gap:3mm 8mm!important; }
+  .print-field { min-width:0!important; padding:1mm 0!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .print-field.full { grid-column:1/-1!important; }
+  .print-value { font-size:9pt!important; line-height:1.5!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:break-word!important; }
+  .print-details { background:#fff!important; border:1px solid #ccc!important; border-left:1.2mm solid #D35400!important; padding:3mm 4mm!important; }
+  .signatures { margin:11mm 2% 4mm!important; gap:16mm!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .sign-person-name { color:#111!important; }
+  .sign-person-title { color:#333!important; }
+  .sign-person-org { color:#D35400!important; }
+  .print-thanks { color:#D35400!important; font-size:9pt!important; margin-top:7mm!important; padding-top:3mm!important; }
+  #paper, #paper * { box-shadow:none!important; text-shadow:none!important; }
+}
+
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebox{position:static}.header-right{display:none}}
+@media(max-width:600px){.shell{width:calc(100% - 28px);padding:20px 0 45px}header{margin-bottom:42px}.brand img{width:40px;height:40px}.brand-name{font-size:14px}.panel{padding:18px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.record-card{align-items:flex-start;flex-direction:column}.records-top{align-items:stretch;flex-direction:column}.records-top input{max-width:none}.preview-wrap{padding:0;overflow:auto}.preview-paper{width:210mm;min-height:297mm;padding:12mm 13mm}.actions{flex-wrap:wrap}.modal{padding:10px}.hero h1{font-size:42px}}
+
+.sign-person{text-align:center;min-width:0;padding:2mm 1mm}
+.sign-person-name{font:800 11pt/1.2 'Manrope';letter-spacing:.025em;color:#111;text-transform:uppercase;overflow-wrap:anywhere}
+.sign-person-title{font:700 9pt/1.35 'Manrope';color:#333;text-transform:uppercase;margin-top:1.5mm}
+.sign-person-org{font:800 9pt/1.35 'Manrope';color:#d45100;text-transform:uppercase;margin-top:1mm}
+.print-thanks{text-align:center;font:700 10pt/1.4 'Manrope';color:#333;margin:9mm 0 2mm;padding-top:3mm;border-top:1px solid #ddd}
+
+
+/* Refined single-page agreement layout */
+.preview-paper{font-family:'DM Sans',Arial,sans-serif;padding:9mm 12mm;min-height:0}
+.print-head{padding-bottom:3mm;gap:6mm}
+.preview-paper .print-logo{width:16mm;height:16mm;flex-basis:16mm}
+.print-brand{font-size:16pt}
+.print-kicker{font-size:6pt}
+.print-meta{gap:1.3mm}
+.meta-item span{font-size:6.2pt}
+.meta-item strong{font-size:8pt}
+.organizer-line{padding:2mm 0;font-size:6pt}
+.print-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8mm;margin:4mm 0 3mm}
+.print-title{font:800 20pt/1.08 'DM Sans',Arial,sans-serif;letter-spacing:-.035em}
+.print-id{margin:0;white-space:nowrap;text-align:right;font:700 8.5pt 'DM Sans',Arial,sans-serif;color:#333}
+.print-section{margin-top:3.2mm}
+.print-section h3{font:800 8pt 'DM Sans',Arial,sans-serif;padding-bottom:1.3mm;margin-bottom:1.5mm}
+.print-grid{gap:1.7mm 8mm}
+.print-field{padding:.4mm 0}
+.print-label{font:700 6.8pt 'DM Sans',Arial,sans-serif;letter-spacing:.055em;margin-bottom:.5mm}
+.print-value{font:600 10pt/1.32 'DM Sans',Arial,sans-serif}
+.print-highlight .print-value{font-weight:700}
+.print-details{padding:2mm 3mm}
+.print-details .print-value{line-height:1.35}
+.print-field.email-field .print-value,.print-field.website-field .print-value{font-size:9.5pt;text-transform:none;letter-spacing:0}
+.signatures{margin:6mm 2% 0;gap:14mm}
+.sign-person{padding:0 1mm}
+.sign-person-name{font:700 9pt/1.2 'DM Sans',Arial,sans-serif;letter-spacing:0;text-transform:none}
+.sign-person-title{font:600 8pt/1.25 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:.6mm}
+.sign-person-org{font:700 8pt/1.25 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:.4mm}
+.sign-line{height:9mm;margin-bottom:1.3mm}
+.sign-caption{font:600 6pt 'DM Sans',Arial,sans-serif;letter-spacing:.045em}
+.print-thanks{text-align:center;font:600 8pt/1.3 'DM Sans',Arial,sans-serif;color:#D35400;margin:4mm 0 0;padding:0;border:0}
+@page{size:A4 portrait;margin:0}
+@media print{
+ .preview-paper{padding:8mm 11mm!important;min-height:0!important;height:auto!important}
+ .print-heading{display:flex!important;align-items:baseline!important;justify-content:space-between!important;margin:4mm 0 3mm!important}
+ .print-id{display:block!important;margin:0!important;font:700 8.5pt 'DM Sans',Arial,sans-serif!important;white-space:nowrap!important}
+ .print-section{margin-top:3.2mm!important}
+ .print-section h3{margin-bottom:1.5mm!important;padding-bottom:1.3mm!important}
+ .print-grid{gap:1.7mm 8mm!important}
+ .print-value{font:600 10pt/1.32 'DM Sans',Arial,sans-serif!important}
+ .signatures{margin:6mm 2% 0!important;gap:14mm!important}
+ .sign-person-name{font:700 9pt/1.2 'DM Sans',Arial,sans-serif!important;text-transform:none!important}
+ .sign-person-title,.sign-person-org{font-family:'DM Sans',Arial,sans-serif!important;text-transform:none!important}
+ .sign-line{height:9mm!important}
+ .print-thanks{font:600 8pt/1.3 'DM Sans',Arial,sans-serif!important;margin:4mm 0 0!important;padding:0!important;border:0!important}
+ .print-field.email-field .print-value,.print-field.website-field .print-value{text-transform:none!important;font-size:9.5pt!important}
+}
+
+
+/* Final agreement print refinements */
+.print-meta{display:grid;gap:2.2mm;text-align:right;min-width:42mm}
+.print-meta .meta-item span{font-size:7pt;letter-spacing:.11em}
+.print-meta .meta-item strong{font-size:9.5pt;line-height:1.25;margin-top:1mm}
+.print-heading{display:block;margin:5mm 0 5mm}
+.print-title{font:800 23pt/1.08 'DM Sans',Arial,sans-serif;letter-spacing:-.035em}
+.print-section{margin-top:5.5mm}
+.print-section h3{font:800 9pt 'DM Sans',Arial,sans-serif;padding-bottom:2mm;margin-bottom:2.5mm}
+.print-grid{gap:3.3mm 9mm}
+.print-field{padding:1mm 0}
+.print-label{font:700 7.5pt 'DM Sans',Arial,sans-serif;letter-spacing:.06em;margin-bottom:1mm}
+.print-value{font:600 11.5pt/1.4 'DM Sans',Arial,sans-serif}
+.print-details{padding:2.5mm 3.5mm}
+.print-details .print-value{font:600 10pt/1.35 'DM Sans',Arial,sans-serif}
+.print-field.email-field .print-value,.print-field.website-field .print-value{font-size:10.5pt;text-transform:none;letter-spacing:0}
+.signatures{margin:12mm 2% 0;gap:16mm;break-inside:avoid}
+.sign-person{padding:1mm}
+.sign-person-name{font:800 11pt/1.25 'DM Sans',Arial,sans-serif;letter-spacing:0;text-transform:uppercase}
+.sign-person-title{font:700 9.5pt/1.3 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:1.3mm}
+.sign-person-org{font:800 9.5pt/1.3 'DM Sans',Arial,sans-serif;text-transform:uppercase;margin-top:1mm}
+.sign-line,.sign-caption{display:none!important}
+.print-thanks{font:600 9pt/1.4 'DM Sans',Arial,sans-serif;margin:10mm 0 0;padding:3mm 0 0;border-top:1px solid #ddd}
+@media print{
+ .print-meta{display:grid!important;gap:2.2mm!important;text-align:right!important}
+ .print-meta .meta-item span{font-size:7pt!important}
+ .print-meta .meta-item strong{font-size:9.5pt!important}
+ .print-heading{display:block!important;margin:5mm 0!important}
+ .print-title{font:800 23pt/1.08 'DM Sans',Arial,sans-serif!important}
+ .print-section{margin-top:5.5mm!important}
+ .print-section h3{font:800 9pt 'DM Sans',Arial,sans-serif!important;margin-bottom:2.5mm!important;padding-bottom:2mm!important}
+ .print-grid{gap:3.3mm 9mm!important}
+ .print-label{font:700 7.5pt 'DM Sans',Arial,sans-serif!important}
+ .print-value{font:600 11.5pt/1.4 'DM Sans',Arial,sans-serif!important}
+ .print-details .print-value{font:600 10pt/1.35 'DM Sans',Arial,sans-serif!important}
+ .print-field.email-field .print-value,.print-field.website-field .print-value{font-size:10.5pt!important;text-transform:none!important}
+ .signatures{margin:12mm 2% 0!important;gap:16mm!important}
+ .sign-person-name{font:800 11pt/1.25 'DM Sans',Arial,sans-serif!important}
+ .sign-person-title,.sign-person-org{font-family:'DM Sans',Arial,sans-serif!important;font-size:9.5pt!important}
+ .sign-line,.sign-caption{display:none!important}
+ .print-thanks{font:600 9pt/1.4 'DM Sans',Arial,sans-serif!important;margin:10mm 0 0!important;padding:3mm 0 0!important}
+}
+
+
+/* Requested two-column representative and three-column date alignment */
+.print-grid-three{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3.3mm 6mm;min-width:0}
+.partnership-grid>.print-field.full{grid-column:1/-1}
+@media print{
+ .print-grid-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3.3mm 6mm!important;grid-column:1/-1!important}
+ .partnership-grid>.print-field.full{grid-column:1/-1!important}
+}
+
+/* F Combinator logo: clean, borderless perfect-square presentation */
+.brand img{
+ width:43px;height:43px;flex:0 0 43px;
+ object-fit:contain;background:transparent;
+ border:0;border-radius:0;padding:0;
+}
+.preview-paper .print-logo{
+ width:16mm;height:16mm;flex:0 0 16mm;
+ object-fit:contain;background:transparent;
+ border:0;border-radius:0;padding:0;
+}
+@media(max-width:600px){
+ .brand img{width:40px;height:40px;flex-basis:40px}
+}
+@media print{
+ .preview-paper .print-logo{
+  width:16mm!important;height:16mm!important;flex-basis:16mm!important;
+  object-fit:contain!important;background:transparent!important;
+  border:0!important;border-radius:0!important;padding:0!important;
+ }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+ <div class="brand"><img src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt="F COMBINATOR logo"><div><div class="brand-name">F COMBINATOR</div><div class="brand-sub">PARTNERSHIP MANAGER</div></div></div>
+ <div class="header-right">TECHNOLOGY · INNOVATION · IMPACT<br><span style="display:block;text-align:right;color:#fff;margin-top:6px">THINK LIKE AN ENGINEER.</span></div>
+</header>
+<section class="hero">
+ <div class="eyebrow">Partnership workspace</div>
+ <h1>Build meaningful<br><span style="color:var(--orange)">partnerships.</span></h1>
+ <p>A focused workspace to organize partner information, manage collaboration records, and keep every partnership document organized.</p>
+ <div class="hero-line"></div>
+</section>
+<div class="tabs">
+ <button class="tab active" id="tabNew" onclick="showTab('new')">Partnership Agreement</button>
+ <button class="tab" id="tabRecords" onclick="showTab('records')">Previous Partnership <span id="recordCount"></span></button>
+</div>
+<section id="newView">
+<div class="layout">
+<form class="panel" id="partnershipForm">
+ <div class="form-section">
+  <h2 class="section-title">Partner Organization Information</h2>
+  <div class="fields">
+   <div class="field full"><label>Partner Organization Name <span class="required">*</span></label><input name="orgName" required placeholder="Enter organization name"></div>
+   <div class="field"><label>Organization Type</label><select name="orgType"><option value="">Select type</option><option>Student Organization</option><option>Educational Institution</option><option>Community</option><option>Startup / Business</option><option>NGO / Non-profit</option><option>Corporate Organization</option><option>Individual</option><option>Other</option></select></div>
+   <div class="field"><label>Organization Email</label><input name="email" type="email" placeholder="contact@example.com"></div>
+   <div class="field"><label>Website</label><input name="website" type="url" placeholder="https://example.com"></div>
+  </div>
+ </div>
+ <div class="form-section">
+  <h2 class="section-title">Representative Information</h2>
+  <div class="fields">
+   <div class="field"><label>Partner Organization — Representative Name <span class="required">*</span></label><input name="partnerAuthName" required placeholder="Enter representative name"></div>
+   <div class="field"><label>Partner Organization — Designation <span class="required">*</span></label><input name="partnerAuthTitle" required placeholder="Enter designation"></div>
+   <div class="field"><label>Representative Email</label><input name="partnerAuthEmail" type="email" placeholder="representative@example.com"></div>
+   <div class="field"><label>Representative Contact Number</label><input name="partnerAuthPhone" type="tel" placeholder="+880 1XXXXXXXXX"></div>
+   <div class="hint field full">F COMBINATOR representative details are preconfigured and appear only in the signature section of the agreement.</div>
+  </div>
+ </div>
+ <div class="form-section">
+  <h2 class="section-title">Partnership Information</h2>
+  <div class="fields">
+   <div class="field"><label>Category <span class="required">*</span></label><select name="category" required><option value="">Select category</option><option>Event Collaboration</option><option>Website / Platform</option><option>Technology Collaboration</option><option>Media & Promotion</option><option>Workshop & Training</option><option>Educational Collaboration</option><option>Community Engagement</option><option>Research & Innovation</option><option>Project / Startup Collaboration</option><option>Strategic Partnership</option><option>Other</option></select></div>
+   <div class="field"><label>Sector <span class="required">*</span></label><select name="sector" required><option value="">Select sector</option><option>Technology & Software</option><option>Education & Learning</option><option>Business & Entrepreneurship</option><option>Research & Innovation</option><option>Media & Communication</option><option>Community & Social Impact</option><option>Events & Operations</option><option>Digital Platforms</option></select></div>
+   <div class="field full"><label>Partnership Description <span class="required">*</span></label><textarea name="details" required maxlength="300" placeholder="Describe the purpose, scope, and key details of this partnership..."></textarea><div class="hint">Maximum 300 characters.</div></div>
+   <div class="field"><label>Partnership Start Date <span class="required">*</span></label><input name="startDate" id="startDate" type="date" required></div>
+   <div class="field"><label>Partnership End Date <span class="required">*</span></label><input name="endDate" id="endDate" type="date" required></div>
+   <div class="field full"><label>Duration</label><input name="duration" id="durationDisplay" readonly placeholder="Automatically calculated from start and end dates"><div class="hint">Duration is calculated automatically from the dates above.</div></div>
+  </div>
+ </div>
+ <div class="actions"><button class="btn" type="reset">Clear Form</button><button class="btn primary" type="submit">Generate Partnership Agreement →</button></div>
+</form>
+<aside class="panel sidebox"><h3>Partnership Agreement.</h3><p>Create a partnership agreement, preview the document, and print or save it as a PDF. All saved agreements remain available under Previous Partnership.</p><div class="side-mark">THINK LIKE AN ENGINEER.</div></aside>
+</div>
+</section>
+<section id="recordsView" style="display:none">
+ <div class="panel">
+  <div class="records-top"><div><h2 class="section-title" style="margin:0">Previous Partnership</h2><div class="hint">Search by Partnership ID, then view or delete the saved agreement</div></div><input id="searchRecords" placeholder="Enter Partnership ID (e.g. FCP-0001)" oninput="renderRecords()"></div>
+  <div class="record-list" id="recordList"></div>
+ </div>
+</section>
+<footer class="footer"><div><strong>F COMBINATOR</strong> &nbsp; PARTNERSHIP MANAGEMENT</div><div><span class="tagline">TECHNOLOGY · INNOVATION · IMPACT</span><br><span>THINK LIKE AN ENGINEER.</span></div></footer>
+</div>
+<div class="modal" id="previewModal">
+ <div class="modal-head"><strong>Partnership Agreement Preview</strong><div><button class="btn small" onclick="window.print()">Print / Save PDF</button> <button class="btn small" onclick="closePreview()">Close</button></div></div>
+ <div class="preview-wrap"><div class="preview-paper" id="paper"></div></div>
+</div>
+<script>
+const KEY='fc_partnership_records_v2';
+let currentRecord=null;
+const $=s=>document.querySelector(s);
+function records(){try{const value=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(value)?value:[]}catch(e){return []}}
+function store(a){try{localStorage.setItem(KEY,JSON.stringify(a));updateCount();return true}catch(e){alert('Could not save this agreement in this browser. Please check available storage.');return false}}
+function updateCount(){$('#recordCount').textContent=records().length?`(${records().length})`:''}
+function showTab(which){
+ $('#newView').style.display=which==='new'?'block':'none';
+ $('#recordsView').style.display=which==='records'?'block':'none';
+ $('#tabNew').classList.toggle('active',which==='new');
+ $('#tabRecords').classList.toggle('active',which==='records');
+ if(which==='records')renderRecords();
+}
+function dateNow(){return new Date().toISOString()}
+function formData(){return Object.fromEntries(new FormData($('#partnershipForm')).entries())}
+function duration(a,b){
+ if(!a||!b)return '';
+ const x=new Date(a+'T00:00:00Z'), y=new Date(b+'T00:00:00Z');
+ if(Number.isNaN(x.getTime())||Number.isNaN(y.getTime())||y<x)return '';
+ let years=y.getUTCFullYear()-x.getUTCFullYear();
+ let months=y.getUTCMonth()-x.getUTCMonth();
+ let days=y.getUTCDate()-x.getUTCDate();
+ if(days<0){
+  months--;
+  const previousMonth=new Date(Date.UTC(y.getUTCFullYear(),y.getUTCMonth(),0));
+  days+=previousMonth.getUTCDate();
+ }
+ if(months<0){years--;months+=12}
+ return [years?years+' year'+(years!==1?'s':''):'',months?months+' month'+(months!==1?'s':''):'',days?days+' day'+(days!==1?'s':''):''].filter(Boolean).join(', ')||'Less than a day';
+}
+function updateDuration(){
+ const a=$('#startDate').value,b=$('#endDate').value;
+ $('#durationDisplay').value=duration(a,b);
+}
+$('#startDate').addEventListener('change',updateDuration);
+$('#endDate').addEventListener('change',updateDuration);
+function resetForm(){
+ $('#partnershipForm').reset();$('#durationDisplay').value='';
+ $('#partnershipForm button[type=submit]').textContent='Generate Partnership Agreement →';
+}
+$('#partnershipForm').addEventListener('reset',()=>{setTimeout(()=>{$('#durationDisplay').value='';$('#partnershipForm button[type=submit]').textContent='Generate Partnership Agreement →'},0)});
+$('#partnershipForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const d=formData();
+ if(d.endDate<d.startDate){alert('End date must be on or after the start date.');return}
+ d.duration=duration(d.startDate,d.endDate);
+ let a=records();
+ const n=a.reduce((m,x)=>Math.max(m,Number((x.id||'').split('-').pop())||0),0)+1;
+ const id='FCP-'+String(n).padStart(4,'0');
+ const saved={...d,id,partnershipDate:dateNow(),createdAt:dateNow()};
+ a.unshift(saved);
+ if(!store(a))return;
+ resetForm();showTab('records');openPreview(saved);
+});
+function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function prettyDate(s){
+ if(!s)return '—';
+ const d=String(s).includes('T')?new Date(s):new Date(String(s).slice(0,10)+'T00:00:00');
+ if(Number.isNaN(d.getTime()))return '—';
+ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+}
+function renderRecords(){
+ const q=($('#searchRecords').value||'').trim().toLowerCase();
+ const list=records().filter(r=>!q||String(r.id||'').toLowerCase().includes(q));
+ $('#recordList').innerHTML=list.length?list.map(r=>`<article class="record-card"><div><div class="record-id">${escapeHTML(r.id)} · ${escapeHTML(r.category)}</div><h3>${escapeHTML(r.orgName)}</h3><p>${escapeHTML(r.sector)} · ${escapeHTML(r.duration||duration(r.startDate,r.endDate))}<br>${escapeHTML(r.startDate)} — ${escapeHTML(r.endDate)}</p></div><div class="card-actions"><button class="btn small" onclick="viewRecord('${r.id}')">View Agreement</button><button class="btn small" onclick="deleteRecord('${r.id}')">Delete</button></div></article>`).join(''):'<div class="empty">No previous partnerships found.</div>';
+}
+function deleteRecord(id){
+ if(!confirm('Delete this partnership agreement?'))return;
+ store(records().filter(x=>x.id!==id));renderRecords();
+}
+function viewRecord(id){const r=records().find(x=>x.id===id);if(r)openPreview(r)}
+function openPreview(r){
+ currentRecord=r;
+ const date=prettyDate(r.partnershipDate||r.createdAt);
+ const meta=(label,value)=>`<div class="meta-item"><span>${label}</span><strong>${escapeHTML(value||'—')}</strong></div>`;
+ const printField=(label,value,full=false,highlight=false,details=false)=>`<div class="print-field ${full?'full':''} ${highlight?'print-highlight':''} ${details?'print-details':''} ${label==='Email Address'?'email-field':''} ${label==='Website Address'?'website-field':''}"><div class="print-label">${label}</div><div class="print-value">${escapeHTML(value||'—')}</div></div>`;
+ const partnerName=r.partnerAuthName||'';
+ const partnerTitle=r.partnerAuthTitle||'';
+ const partnerOrg=r.orgName||'PARTNER ORGANIZATION';
+ const email=(r.email||'').toLowerCase();
+ const website=(r.website||'').toLowerCase();
+ const fcName='ABDULLAH AL RAFI';
+ const fcTitle='CEO';
+ $('#paper').innerHTML=`
+  <div class="print-head">
+   <div class="print-brand-group"><img class="print-logo" src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt="F COMBINATOR"><div><div class="print-brand">F COMBINATOR</div><div class="print-kicker">TECHNOLOGY · INNOVATION · IMPACT</div><div class="print-kicker">THINK LIKE AN ENGINEER.</div></div></div>
+   <div class="print-meta">${meta('PARTNERSHIP DATE',date)}${meta('PARTNERSHIP ID',r.id)}</div>
+  </div>
+  <div class="organizer-line">OFFICIAL PARTNERSHIP DOCUMENT</div>
+  <div class="print-heading"><h1 class="print-title">PARTNERSHIP AGREEMENT</h1></div>
+  <section class="print-section"><h3>PARTNERSHIP ORGANIZATION INFORMATION</h3><div class="print-grid">
+   ${printField('Organization Name',r.orgName,true,true)}
+   ${printField('Organization Type',r.orgType)}
+   ${printField('Email Address',email)}
+   ${printField('Website Address',website)}
+  </div></section>
+  <section class="print-section"><h3>REPRESENTATIVE INFORMATION</h3><div class="print-grid">
+   ${printField('Representative Name',partnerName,true,true)}
+   ${printField('Designation',partnerTitle)}
+   ${printField('Contact Number',r.partnerAuthPhone)}
+   ${printField('Email Address',(r.partnerAuthEmail||'').toLowerCase())}
+  </div></section>
+  <section class="print-section"><h3>PARTNERSHIP INFORMATION</h3><div class="print-grid partnership-grid">
+   ${printField('Category',r.category,false,true)}
+   ${printField('Sector',r.sector,false,true)}
+   <div class="print-grid-three">
+    ${printField('Start Date',prettyDate(r.startDate))}
+    ${printField('End Date',prettyDate(r.endDate))}
+    ${printField('Duration',r.duration||duration(r.startDate,r.endDate),false,true)}
+   </div>
+   ${printField('Partnership Description',r.details,true,false,true)}
+  </div></section>
+  <div class="signatures">
+   <div class="sign-person"><div class="sign-person-name">${escapeHTML(partnerName)}</div><div class="sign-person-title">${escapeHTML(partnerTitle)}</div><div class="sign-person-org">${escapeHTML(partnerOrg)}</div></div>
+   <div class="sign-person"><div class="sign-person-name">${fcName}</div><div class="sign-person-title">${fcTitle}</div><div class="sign-person-org">F COMBINATOR</div></div>
+  </div>
+  <div class="print-thanks">Thank you for partnering with F COMBINATOR.</div>`;
+ $('#previewModal').classList.add('open');
+}
+function closePreview(){$('#previewModal').classList.remove('open')}
+updateCount();
+</script>
+</body></html>
