@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F COMBINATOR — Partnership Manager</title>
+<link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--bg:#080808;--panel:#111;--panel2:#171717;--line:rgba(255,255,255,.11);--muted:#a4a4a4;--text:#f7f7f7;--orange:#D35400;--orange-soft:#D35400;--max:1200px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;letter-spacing:-.012em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0 0 auto;height:780px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 73% 22%,rgba(255,81,0,.2),transparent 38%),radial-gradient(ellipse at 90% 5%,rgba(255,132,37,.09),transparent 30%),linear-gradient(180deg,rgba(255,106,0,.03),transparent 40%)}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at 50% 30%,#000 20%,transparent 70%)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.shell{max-width:var(--max);width:calc(100% - 48px);margin:auto;padding:26px 0 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:62px}
+.brand{display:flex;align-items:center;gap:12px}.brand img{width:43px;height:43px;object-fit:cover;border-radius:10px;background:#fff}
+.brand-name{font:700 15px 'Space Grotesk';letter-spacing:.075em}.brand-sub{font-size:9px;letter-spacing:.2em;color:#9c9c9c;margin-top:5px;font-weight:700}
+.header-right{font:700 10px 'Space Grotesk';color:#aaa;letter-spacing:.18em;text-transform:uppercase}
+.hero{position:relative;padding:0 0 42px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:10px;color:var(--orange-soft);font-weight:800;letter-spacing:.22em;text-transform:uppercase}
+.hero h1{font:600 clamp(38px,6vw,70px)/.98 'Space Grotesk';letter-spacing:-.065em;margin:18px 0 16px;max-width:760px}
+.hero h1 span{color:var(--orange)}
+.hero p{color:#aaa;max-width:620px;line-height:1.9;font-size:14px;margin:0}
+.hero-line{height:2px;width:62px;background:var(--orange);margin-top:25px;box-shadow:0 0 20px #ff6a0055}
+.tabs{display:flex;gap:28px;border-bottom:1px solid var(--line);margin-bottom:24px}.tab{background:none;border:0;color:#8e8e8e;padding:13px 2px;font:700 12px 'Manrope';border-bottom:2px solid transparent}.tab.active{color:#fff;border-color:var(--orange)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;align-items:start}
+.panel{background:linear-gradient(145deg,rgba(22,22,22,.96),rgba(13,13,13,.98));border:1px solid var(--line);border-radius:19px;padding:25px;box-shadow:0 22px 65px #0005}
+.section-title{font:700 14px 'Space Grotesk';letter-spacing:.01em;margin:0 0 19px;display:flex;align-items:center;gap:11px}
+.section-title:before{content:"";width:3px;height:18px;border-radius:4px;background:var(--orange);box-shadow:0 0 14px #ff6a0066}
+.form-section{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.085)}.form-section:last-of-type{border:0;margin:0;padding:0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.field.full{grid-column:1/-1}
+label{display:block;color:#d1d1d1;font-size:11px;font-weight:800;letter-spacing:.025em;margin:0 0 8px}.required{color:var(--orange)}
+input,select,textarea{width:100%;border:1px solid #333;background:#0b0b0b;color:#f3f3f3;border-radius:10px;padding:12px 13px;outline:none;transition:.2s}
+input,select{height:46px}textarea{min-height:105px;resize:vertical;line-height:1.65}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px #ff6a0019}
+input::placeholder,textarea::placeholder{color:#666}select{color-scheme:dark}
+.lowercase-field{ text-transform:lowercase!important; }
+
+.hint{font-size:10px;color:#858585;margin-top:7px;line-height:1.6}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:23px}
+.btn{border:1px solid #393939;background:#191919;color:#eee;border-radius:999px;padding:12px 18px;font-size:11px;font-weight:800;letter-spacing:.04em;transition:.2s}
+.btn:hover{transform:translateY(-2px);border-color:var(--orange)}.btn.primary{background:var(--orange);border-color:var(--orange);color:#130d08;box-shadow:0 8px 25px #ff6a0022}.btn.primary:hover{background:#ff812c}
+.sidebox{position:sticky;top:18px;background:radial-gradient(ellipse at 85% 0%,#ff6a001c,transparent 50%),linear-gradient(145deg,#151515,#0d0d0d)}
+.sidebox h3{font:700 17px 'Space Grotesk';margin:0 0 12px}.sidebox p{font-size:12px;line-height:1.85;color:#a5a5a5;margin:0}
+.side-mark{font:700 10px 'Space Grotesk';letter-spacing:.15em;color:var(--orange);margin-top:21px;padding-top:15px;border-top:1px solid var(--line)}
+.records-top{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:18px}.records-top input{max-width:420px}
+.record-list{display:grid;gap:12px}.record-card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(110deg,#151515,#101010);padding:18px;display:flex;justify-content:space-between;gap:15px;align-items:center;transition:.2s}
+.record-card:hover{border-color:#ff6a0066;transform:translateY(-2px)}
+.record-card h3{font:700 16px 'Space Grotesk';margin:0 0 7px}.record-card p{font-size:11px;color:#9b9b9b;margin:0;line-height:1.75}
+.record-id{color:var(--orange-soft);font:700 10px 'Space Grotesk';letter-spacing:.11em;margin-bottom:7px}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap}.small{padding:8px 12px;font-size:10px}
+.empty{padding:38px 18px;text-align:center;color:#929292;border:1px dashed #393939;border-radius:13px;font-size:12px}
+.footer{margin-top:48px;padding-top:19px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:#777;font:700 9px 'Space Grotesk';letter-spacing:.14em}
+.footer strong{color:#eee}.footer .tagline{color:var(--orange)}
+.modal{display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 78% 5%,rgba(255,106,0,.17),transparent 34%),linear-gradient(180deg,rgba(5,5,5,.97),rgba(8,8,8,.985));z-index:10;padding:20px;overflow:auto;backdrop-filter:blur(14px)}.modal.open{display:block}
+.modal-head{max-width:900px;margin:0 auto 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#fff;font:700 12px 'Space Grotesk';letter-spacing:.08em}
+.preview-wrap{width:100%;max-width:210mm;margin:0 auto;padding:0;background:#fff}
+.preview-paper{text-transform:uppercase;background:#fff;color:#111;width:210mm;min-height:297mm;margin:0 auto;padding:12mm 13mm;box-shadow:0 18px 55px #0008;border:1px solid #ddd;border-radius:0;font-family:'DM Sans',Arial,sans-serif;position:relative;overflow:visible}
+.print-head{display:flex;align-items:center;justify-content:space-between;gap:10mm;border-bottom:1.2mm solid #D35400;padding-bottom:5mm}
+.print-brand-group{display:flex;align-items:center;gap:4mm}.preview-paper .print-logo{width:19mm;height:19mm;object-fit:contain;background:#fff;border:1px solid #ddd;border-radius:2mm;padding:1mm;flex:0 0 19mm}
+.print-brand{font:800 17pt 'Manrope',Arial;color:#111;letter-spacing:-.035em}.print-kicker{font:800 6.5pt 'Manrope';letter-spacing:.16em;color:#D35400;margin-top:1.5mm}
+.print-meta{display:grid;gap:2mm;text-align:right}.meta-item span{display:block;font:700 6pt 'Manrope';letter-spacing:.12em;color:#555}.meta-item strong{display:block;font:800 8pt 'Manrope';color:#111;margin-top:1mm}
+.organizer-line{padding:3mm 0;border-bottom:1px solid #bbb;font:800 6.5pt 'Manrope';letter-spacing:.14em;color:#D35400}
+.print-heading{display:block;margin:7mm 0 5mm}
+.print-title{font:800 21pt 'Manrope';letter-spacing:-.04em;color:#111;margin:0}
+.print-id{display:block;margin-top:1.5mm;color:#222;font:700 8pt 'Manrope';letter-spacing:.06em}
+.print-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;margin-bottom:5mm}
+.summary-box{background:#fff;border:1px solid #ccc;border-top:1mm solid #D35400;border-radius:1.5mm;padding:3mm 3.5mm;min-width:0}
+.summary-box span{display:block;font:800 5.8pt 'Manrope';letter-spacing:.1em;color:#555;text-transform:uppercase}
+.summary-box strong{display:block;font:800 8.5pt 'Manrope';color:#111;margin-top:1.2mm;overflow-wrap:anywhere}
+.print-section{margin-top:5mm;break-inside:auto}
+.print-section h3{font:800 8pt 'Manrope';letter-spacing:.12em;text-transform:uppercase;color:#D35400;border-bottom:1px solid #bbb;padding-bottom:2mm;margin:0 0 3mm}
+.print-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm 8mm}
+.print-field{min-width:0;break-inside:avoid;padding:1mm 0}
+.print-field.full{grid-column:1/-1}
+.print-label{font:800 6.2pt 'Manrope';letter-spacing:.09em;text-transform:uppercase;color:#555;margin-bottom:1.2mm}
+.print-value{font:600 9pt/1.5 'DM Sans',Arial,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;color:#111}
+.print-highlight .print-value{font-weight:800;color:#111}
+.print-details{background:#fff;border:1px solid #ccc;border-left:1.2mm solid #D35400;border-radius:1mm;padding:3mm 4mm}
+.signatures{display:grid;grid-template-columns:1fr 1fr;gap:16mm;margin:11mm 2% 4mm;break-inside:avoid}
+.sign-person{text-align:center;min-width:0;padding:2mm 1mm}
+.sign-person-name{font:800 10pt/1.2 'Manrope';letter-spacing:.02em;color:#111;text-transform:uppercase;overflow-wrap:anywhere}
+.sign-person-title{font:700 8pt/1.35 'Manrope';color:#333;text-transform:uppercase;margin-top:1mm}
+.sign-person-org{font:800 8pt/1.35 'Manrope';color:#D35400;text-transform:uppercase;margin-top:.8mm}
+.sign-line{height:12mm;border-bottom:1px solid #333;margin-bottom:2mm}
+.sign-caption{font:700 6pt 'Manrope';letter-spacing:.08em;color:#555;text-transform:uppercase}
+.print-thanks{text-align:center;font:700 9pt/1.4 'Manrope';color:#D35400;margin:7mm 0 0;padding-top:3mm;border-top:1px solid #bbb}
+.print-footer{border-top:1px solid #bbb;padding-top:2.5mm;margin-top:5mm;display:flex;justify-content:space-between;gap:10px;color:#555;font:700 5.8pt 'Manrope';letter-spacing:.09em}
+
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html, body { width:210mm!important; min-height:297mm!important; margin:0!important; padding:0!important; background:#fff!important; color:#111!important; overflow:visible!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+  body::before, body::after, .shell, .modal-head { display:none!important; content:none!important; }
+  #previewModal { display:block!important; position:static!important; inset:auto!important; width:210mm!important; min-height:297mm!important; margin:0!important; padding:0!important; overflow:visible!important; background:#fff!important; color:#111!important; border:0!important; box-shadow:none!important; }
+  .preview-wrap { display:block!important; width:210mm!important; max-width:none!important; margin:0!important; padding:0!important; overflow:visible!important; background:#fff!important; border:0!important; box-shadow:none!important; }
+  .preview-paper { display:block!important; width:210mm!important; max-width:none!important; min-height:297mm!important; height:auto!important; margin:0!important; padding:12mm 13mm!important; overflow:visible!important; border:0!important; border-radius:0!important; box-shadow:none!important; background:#fff!important; color:#111!important; font-family:'DM Sans',Arial,sans-serif!important; }
+  .print-head { border-bottom:1.2mm solid #D35400!important; padding-bottom:5mm!important; break-inside:avoid!important; }
+  .preview-paper .print-logo { width:19mm!important; height:19mm!important; flex-basis:19mm!important; object-fit:contain!important; background:#fff!important; border:1px solid #ddd!important; border-radius:2mm!important; padding:1mm!important; }
+  .print-brand { color:#111!important; font-size:17pt!important; }
+  .print-kicker { color:#D35400!important; font-size:6.5pt!important; }
+  .print-meta .meta-item span, .print-label { color:#555!important; }
+  .print-meta .meta-item strong, .print-title, .print-value, .print-highlight .print-value { color:#111!important; }
+  .organizer-line { color:#D35400!important; border-color:#bbb!important; padding:3mm 0!important; }
+  .print-heading { display:block!important; margin:7mm 0 5mm!important; break-after:avoid!important; }
+  .print-title { font-size:21pt!important; line-height:1.1!important; margin:0!important; }
+  .print-id { display:block!important; margin-top:1.5mm!important; padding:0!important; background:transparent!important; color:#222!important; border:0!important; font:700 8pt 'Manrope',Arial,sans-serif!important; }
+  .print-summary { gap:3mm!important; margin-bottom:5mm!important; break-inside:avoid!important; }
+  .summary-box { background:#fff!important; border:1px solid #ccc!important; border-top:1mm solid #D35400!important; border-radius:1.5mm!important; padding:3mm 3.5mm!important; }
+  .summary-box span { color:#555!important; }
+  .summary-box strong { color:#111!important; }
+  .print-section { display:block!important; margin-top:5mm!important; break-inside:auto!important; page-break-inside:auto!important; }
+  .print-section h3 { color:#D35400!important; border-color:#bbb!important; break-after:avoid!important; }
+  .print-grid { display:grid!important; grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important; gap:3mm 8mm!important; }
+  .print-field { min-width:0!important; padding:1mm 0!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .print-field.full { grid-column:1/-1!important; }
+  .print-value { font-size:9pt!important; line-height:1.5!important; white-space:pre-wrap!important; overflow-wrap:anywhere!important; word-break:break-word!important; }
+  .print-details { background:#fff!important; border:1px solid #ccc!important; border-left:1.2mm solid #D35400!important; padding:3mm 4mm!important; }
+  .signatures { margin:11mm 2% 4mm!important; gap:16mm!important; break-inside:avoid!important; page-break-inside:avoid!important; }
+  .sign-person-name { color:#111!important; }
+  .sign-person-title { color:#333!important; }
+  .sign-person-org { color:#D35400!important; }
+  .print-thanks { color:#D35400!important; font-size:9pt!important; margin-top:7mm!important; padding-top:3mm!important; }
+  #paper, #paper * { box-shadow:none!important; text-shadow:none!important; }
+}
+
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebox{position:static}.header-right{display:none}}
+@media(max-width:600px){.shell{width:calc(100% - 28px);padding:20px 0 45px}header{margin-bottom:42px}.brand img{width:40px;height:40px}.brand-name{font-size:14px}.panel{padding:18px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.record-card{align-items:flex-start;flex-direction:column}.records-top{align-items:stretch;flex-direction:column}.records-top input{max-width:none}.preview-wrap{padding:0;overflow:auto}.preview-paper{width:210mm;min-height:297mm;padding:12mm 13mm}.actions{flex-wrap:wrap}.modal{padding:10px}.hero h1{font-size:42px}}
+
+.sign-person{text-align:center;min-width:0;padding:2mm 1mm}
+.sign-person-name{font:800 11pt/1.2 'Manrope';letter-spacing:.025em;color:#111;text-transform:uppercase;overflow-wrap:anywhere}
+.sign-person-title{font:700 9pt/1.35 'Manrope';color:#333;text-transform:uppercase;margin-top:1.5mm}
+.sign-person-org{font:800 9pt/1.35 'Manrope';color:#d45100;text-transform:uppercase;margin-top:1mm}
+.print-thanks{text-align:center;font:700 10pt/1.4 'Manrope';color:#333;margin:9mm 0 2mm;padding-top:3mm;border-top:1px solid #ddd}
+
+
+/* Refined single-page agreement layout */
+.preview-paper{font-family:'DM Sans',Arial,sans-serif;padding:9mm 12mm;min-height:0}
+.print-head{padding-bottom:3mm;gap:6mm}
+.preview-paper .print-logo{width:16mm;height:16mm;flex-basis:16mm}
+.print-brand{font-size:16pt}
+.print-kicker{font-size:6pt}
+.print-meta{gap:1.3mm}
+.meta-item span{font-size:6.2pt}
+.meta-item strong{font-size:8pt}
+.organizer-line{padding:2mm 0;font-size:6pt}
+.print-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8mm;margin:4mm 0 3mm}
+.print-title{font:800 20pt/1.08 'DM Sans',Arial,sans-serif;letter-spacing:-.035em}
+.print-id{margin:0;white-space:nowrap;text-align:right;font:700 8.5pt 'DM Sans',Arial,sans-serif;color:#333}
+.print-section{margin-top:3.2mm}
+.print-section h3{font:800 8pt 'DM Sans',Arial,sans-serif;padding-bottom:1.3mm;margin-bottom:1.5mm}
+.print-grid{gap:1.7mm 8mm}
+.print-field{padding:.4mm 0}
+.print-label{font:700 6.8pt 'DM Sans',Arial,sans-serif;letter-spacing:.055em;margin-bottom:.5mm}
+.print-value{font:600 10pt/1.32 'DM Sans',Arial,sans-serif}
+.print-highlight .print-value{font-weight:700}
+.print-details{padding:2mm 3mm}
+.print-details .print-value{line-height:1.35}
+.print-field.email-field .print-value,.print-field.website-field .print-value{font-size:9.5pt;text-transform:none;letter-spacing:0}
+.signatures{margin:6mm 2% 0;gap:14mm}
+.sign-person{padding:0 1mm}
+.sign-person-name{font:700 9pt/1.2 'DM Sans',Arial,sans-serif;letter-spacing:0;text-transform:none}
+.sign-person-title{font:600 8pt/1.25 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:.6mm}
+.sign-person-org{font:700 8pt/1.25 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:.4mm}
+.sign-line{height:9mm;margin-bottom:1.3mm}
+.sign-caption{font:600 6pt 'DM Sans',Arial,sans-serif;letter-spacing:.045em}
+.print-thanks{text-align:center;font:600 8pt/1.3 'DM Sans',Arial,sans-serif;color:#D35400;margin:4mm 0 0;padding:0;border:0}
+@page{size:A4 portrait;margin:0}
+@media print{
+ .preview-paper{padding:8mm 11mm!important;min-height:0!important;height:auto!important}
+ .print-heading{display:flex!important;align-items:baseline!important;justify-content:space-between!important;margin:4mm 0 3mm!important}
+ .print-id{display:block!important;margin:0!important;font:700 8.5pt 'DM Sans',Arial,sans-serif!important;white-space:nowrap!important}
+ .print-section{margin-top:3.2mm!important}
+ .print-section h3{margin-bottom:1.5mm!important;padding-bottom:1.3mm!important}
+ .print-grid{gap:1.7mm 8mm!important}
+ .print-value{font:600 10pt/1.32 'DM Sans',Arial,sans-serif!important}
+ .signatures{margin:6mm 2% 0!important;gap:14mm!important}
+ .sign-person-name{font:700 9pt/1.2 'DM Sans',Arial,sans-serif!important;text-transform:none!important}
+ .sign-person-title,.sign-person-org{font-family:'DM Sans',Arial,sans-serif!important;text-transform:none!important}
+ .sign-line{height:9mm!important}
+ .print-thanks{font:600 8pt/1.3 'DM Sans',Arial,sans-serif!important;margin:4mm 0 0!important;padding:0!important;border:0!important}
+ .print-field.email-field .print-value,.print-field.website-field .print-value{text-transform:none!important;font-size:9.5pt!important}
+}
+
+
+/* Final agreement print refinements */
+.print-meta{display:grid;gap:2.2mm;text-align:right;min-width:42mm}
+.print-meta .meta-item span{font-size:7pt;letter-spacing:.11em}
+.print-meta .meta-item strong{font-size:9.5pt;line-height:1.25;margin-top:1mm}
+.print-heading{display:block;margin:5mm 0 5mm}
+.print-title{font:800 23pt/1.08 'DM Sans',Arial,sans-serif;letter-spacing:-.035em}
+.print-section{margin-top:5.5mm}
+.print-section h3{font:800 9pt 'DM Sans',Arial,sans-serif;padding-bottom:2mm;margin-bottom:2.5mm}
+.print-grid{gap:3.3mm 9mm}
+.print-field{padding:1mm 0}
+.print-label{font:700 7.5pt 'DM Sans',Arial,sans-serif;letter-spacing:.06em;margin-bottom:1mm}
+.print-value{font:600 11.5pt/1.4 'DM Sans',Arial,sans-serif}
+.print-details{padding:2.5mm 3.5mm}
+.print-details .print-value{font:600 10pt/1.35 'DM Sans',Arial,sans-serif}
+.print-field.email-field .print-value,.print-field.website-field .print-value{font-size:10.5pt;text-transform:none;letter-spacing:0}
+.signatures{margin:12mm 2% 0;gap:16mm;break-inside:avoid}
+.sign-person{padding:1mm}
+.sign-person-name{font:800 11pt/1.25 'DM Sans',Arial,sans-serif;letter-spacing:0;text-transform:uppercase}
+.sign-person-title{font:700 9.5pt/1.3 'DM Sans',Arial,sans-serif;text-transform:none;margin-top:1.3mm}
+.sign-person-org{font:800 9.5pt/1.3 'DM Sans',Arial,sans-serif;text-transform:uppercase;margin-top:1mm}
+.sign-line,.sign-caption{display:none!important}
+.print-thanks{font:600 9pt/1.4 'DM Sans',Arial,sans-serif;margin:10mm 0 0;padding:3mm 0 0;border-top:1px solid #ddd}
+@media print{
+ .print-meta{display:grid!important;gap:2.2mm!important;text-align:right!important}
+ .print-meta .meta-item span{font-size:7pt!important}
+ .print-meta .meta-item strong{font-size:9.5pt!important}
+ .print-heading{display:block!important;margin:5mm 0!important}
+ .print-title{font:800 23pt/1.08 'DM Sans',Arial,sans-serif!important}
+ .print-section{margin-top:5.5mm!important}
+ .print-section h3{font:800 9pt 'DM Sans',Arial,sans-serif!important;margin-bottom:2.5mm!important;padding-bottom:2mm!important}
+ .print-grid{gap:3.3mm 9mm!important}
+ .print-label{font:700 7.5pt 'DM Sans',Arial,sans-serif!important}
+ .print-value{font:600 11.5pt/1.4 'DM Sans',Arial,sans-serif!important}
+ .print-details .print-value{font:600 10pt/1.35 'DM Sans',Arial,sans-serif!important}
+ .print-field.email-field .print-value,.print-field.website-field .print-value{font-size:10.5pt!important;text-transform:none!important}
+ .signatures{margin:12mm 2% 0!important;gap:16mm!important}
+ .sign-person-name{font:800 11pt/1.25 'DM Sans',Arial,sans-serif!important}
+ .sign-person-title,.sign-person-org{font-family:'DM Sans',Arial,sans-serif!important;font-size:9.5pt!important}
+ .sign-line,.sign-caption{display:none!important}
+ .print-thanks{font:600 9pt/1.4 'DM Sans',Arial,sans-serif!important;margin:10mm 0 0!important;padding:3mm 0 0!important}
+}
+
+
+/* Requested two-column representative and three-column date alignment */
+.print-grid-three{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3.3mm 6mm;min-width:0}
+.partnership-grid>.print-field.full{grid-column:1/-1}
+@media print{
+ .print-grid-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3.3mm 6mm!important;grid-column:1/-1!important}
+ .partnership-grid>.print-field.full{grid-column:1/-1!important}
+}
+
+/* F Combinator logo: clean, borderless perfect-square presentation */
+.brand img{
+ width:43px;height:43px;flex:0 0 43px;
+ object-fit:contain;background:transparent;
+ border:0;border-radius:0;padding:0;
+}
+.preview-paper .print-logo{
+ width:16mm;height:16mm;flex:0 0 16mm;
+ object-fit:contain;background:transparent;
+ border:0;border-radius:0;padding:0;
+}
+@media(max-width:600px){
+ .brand img{width:40px;height:40px;flex-basis:40px}
+}
+@media print{
+ .preview-paper .print-logo{
+  width:16mm!important;height:16mm!important;flex-basis:16mm!important;
+  object-fit:contain!important;background:transparent!important;
+  border:0!important;border-radius:0!important;padding:0!important;
+ }
+}
+
+/* Final responsive preview and A4 print layout */
+@media(max-width:600px){
+  #previewModal{padding:10px!important}
+  #previewModal .modal-head{align-items:flex-start;flex-direction:column;gap:10px}
+  #previewModal .modal-head>div{display:flex;gap:8px;flex-wrap:wrap}
+  #previewModal .preview-wrap{max-width:100%;overflow:visible}
+  #paper.preview-paper{
+    box-sizing:border-box;width:100%;min-height:0;height:auto;
+    margin:0 auto;padding:22px 18px;overflow:visible;
+    box-shadow:none;border:0;
+  }
+  #paper .print-head{gap:12px;align-items:flex-start}
+  #paper .print-brand-group{gap:10px;min-width:0}
+  #paper .print-brand{font-size:15pt}
+  #paper .print-kicker{font-size:5.5pt;letter-spacing:.1em}
+  #paper .print-meta{min-width:0}
+  #paper .print-meta .meta-item strong{font-size:7pt}
+  #paper .print-grid{grid-template-columns:1fr!important;gap:10px}
+  #paper .print-grid-three{grid-template-columns:1fr!important;gap:10px}
+  #paper .signatures{gap:12px;margin:28px 0 0}
+  #paper .sign-person-name{font-size:9pt}
+  #paper .sign-person-title,#paper .sign-person-org{font-size:8pt}
+}
+@page{size:A4 portrait;margin:0}
+@media print{
+  html,body{
+    width:210mm!important;height:297mm!important;margin:0!important;
+    padding:0!important;background:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body *{visibility:hidden!important}
+  #previewModal,#previewModal *{visibility:visible!important}
+  #previewModal{
+    display:block!important;position:absolute!important;left:0!important;top:0!important;
+    width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;
+    overflow:hidden!important;background:#fff!important;backdrop-filter:none!important;
+  }
+  #previewModal .modal-head{display:none!important}
+  #previewModal .preview-wrap{display:block!important;width:210mm!important;max-width:none!important;
+    height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important}
+  #paper.preview-paper{
+    display:block!important;box-sizing:border-box!important;position:absolute!important;
+    left:0!important;top:0!important;width:210mm!important;height:297mm!important;
+    min-height:297mm!important;margin:0!important;padding:12mm 14mm 10mm!important;
+    box-shadow:none!important;border:0!important;border-radius:0!important;overflow:hidden!important;
+  }
+}
+
+
+/* Consistent uppercase data-entry style */
+#partnershipForm input:not([type="date"]):not([type="hidden"]),
+#partnershipForm select,
+#partnershipForm textarea { text-transform: uppercase; }
+#partnershipForm input::placeholder,
+#partnershipForm textarea::placeholder { text-transform: uppercase; opacity:.58; }
+
+/* F COMBINATOR themed dropdowns */
+#partnershipForm select, #sortRecords {
+  appearance:none; -webkit-appearance:none;
+  color:#fff; font-weight:700; letter-spacing:.015em;
+  border:1px solid rgba(249,115,22,.55);
+  border-radius:12px;
+  padding-right:42px;
+  background-color:#111;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; background-size:17px;
+}
+#partnershipForm select:focus, #sortRecords:focus {border-color:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,.16)}
+#partnershipForm select option {background:#111;color:#fff}
+/* Modern preview controls */
+.modal-head .btn {
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  padding:10px 18px;
+  font-weight:800;
+  letter-spacing:.04em;
+  transition:transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.modal-head .btn:first-child {
+  background:linear-gradient(135deg,#f97316,#c2410c);
+  color:#fff;
+  border-color:#fb923c;
+  box-shadow:0 6px 18px rgba(234,88,12,.24);
+}
+.modal-head .btn:last-child {
+  background:#252525;
+  color:#f5f5f5;
+}
+.modal-head .btn:hover { transform:translateY(-1px); }
+.records-tools { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.records-tools select { min-width:170px; }
+@media(max-width:600px) {
+  .records-tools { width:100%; }
+  .records-tools input,.records-tools select { width:100%; }
+}
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  .preview-paper {
+    padding:5mm 10mm 5mm!important;
+  }
+  .print-heading { margin:4mm 0 3mm!important; }
+  .organizer-line { padding:2mm 0!important; }
+  .print-section { margin-top:3mm!important; }
+  .print-summary { margin-bottom:3mm!important; }
+  .print-head { padding-bottom:3mm!important; }
+}
+
+/* Contact strip and date-driven partnership status */
+.contact-strip{display:flex;align-items:center;justify-content:space-between;gap:2mm;flex-wrap:nowrap;white-space:nowrap;padding:3mm 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd;font:800 10pt 'DM Sans',Arial,sans-serif;color:#111}
+.contact-item{display:inline-flex;align-items:center;white-space:nowrap}
+.contact-separator{font-weight:800;color:#D35400;margin:0 .5mm}
+.contact-item a{color:inherit;text-decoration:none;text-transform:lowercase}
+.record-status{display:inline-flex;align-items:center;margin-top:7px;padding:4px 9px;border:1px solid rgba(255,255,255,.18);border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.record-status.due{color:#fbbf24;border-color:#a16207}
+.record-status.processing{color:#60a5fa;border-color:#2563eb}
+.record-status.ended{color:#a3a3a3;border-color:#525252}
+@media print{.contact-strip{gap:2mm;padding:3.5mm 0;font-size:10pt;justify-content:space-between}.contact-item{flex:0 0 auto}.contact-separator{margin:0 1mm;font-size:10pt}}
+@media(max-width:650px){.contact-strip{font-size:6.5pt;gap:1mm;justify-content:center}.contact-separator{margin:0}}
+
+
+
+/* Modern F COMBINATOR workspace refresh — presentation only; form logic unchanged */
+:root{--bg:#090909;--panel:#121212;--panel2:#191919;--line:rgba(255,255,255,.10);--muted:#a7a7a7;--text:#f7f7f7;--orange:#f97316;--orange-soft:#fb923c;--max:1280px}
+body{background:#090909;font-size:14px}
+body:before{height:900px;background:radial-gradient(ellipse at 78% 8%,rgba(249,115,22,.19),transparent 34%),radial-gradient(ellipse at 8% 42%,rgba(249,115,22,.07),transparent 30%),linear-gradient(180deg,rgba(249,115,22,.035),transparent 48%)}
+.shell{width:calc(100% - 56px);padding-top:28px}
+header{margin-bottom:48px;padding:15px 18px;border:1px solid rgba(255,255,255,.09);border-radius:18px;background:rgba(17,17,17,.78);backdrop-filter:blur(14px);box-shadow:0 12px 36px rgba(0,0,0,.2)}
+.brand{gap:14px}.brand img{width:48px;height:48px;flex-basis:48px}.brand-name{font-size:16px;letter-spacing:.09em}.brand-sub{font-size:9px;color:#aaa}
+.header-right{font-size:9px;letter-spacing:.16em;line-height:1.8}
+.hero{padding:8px 0 34px;margin-bottom:24px;border-bottom-color:rgba(249,115,22,.22)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border:1px solid rgba(249,115,22,.28);border-radius:999px;background:rgba(249,115,22,.08);font-size:9px;letter-spacing:.17em}
+.hero h1{font-size:clamp(40px,6vw,68px);line-height:1.02;margin:17px 0 14px;max-width:850px}
+.hero p{font-size:13px;max-width:670px;color:#b4b4b4;line-height:1.85}
+.hero-line{width:74px;height:3px;border-radius:99px;margin-top:22px;background:linear-gradient(90deg,#f97316,#fdba74);box-shadow:0 0 22px rgba(249,115,22,.35)}
+.tabs{gap:8px;border:0;padding:6px;width:max-content;max-width:100%;border-radius:14px;background:#111;margin-bottom:22px}
+.tab{padding:12px 18px;border:1px solid transparent;border-radius:10px;color:#999;font-size:11px;transition:all .2s}
+.tab:hover{color:#fff;background:#1b1b1b}.tab.active{color:#fff;background:linear-gradient(135deg,rgba(249,115,22,.20),rgba(194,65,12,.09));border-color:rgba(249,115,22,.38);box-shadow:inset 0 0 0 1px rgba(249,115,22,.06)}
+.layout{grid-template-columns:minmax(0,1fr) 285px;gap:20px}
+.panel{border:1px solid rgba(255,255,255,.095);border-radius:20px;padding:27px;background:linear-gradient(145deg,rgba(22,22,22,.98),rgba(13,13,13,.98));box-shadow:0 18px 55px rgba(0,0,0,.28)}
+.form-section{padding-bottom:27px;margin-bottom:27px;border-bottom:1px solid rgba(255,255,255,.075)}
+.section-title{font-size:14px;letter-spacing:.015em;margin-bottom:20px}.section-title:before{width:4px;height:20px;border-radius:6px;box-shadow:0 0 16px rgba(249,115,22,.35)}
+.fields{gap:19px 18px}
+label{font-size:11px;color:#dedede;letter-spacing:.015em;margin-bottom:9px}
+input,select,textarea{border:1px solid #343434;border-radius:12px;background:linear-gradient(180deg,#101010,#0c0c0c);padding:13px 15px;font-size:13px;transition:border-color .2s,box-shadow .2s,background .2s}
+input,select{height:49px}textarea{min-height:112px}
+input:hover,select:hover,textarea:hover{border-color:#555}
+input:focus,select:focus,textarea:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.13);background:#101010}
+.hint{font-size:10px;color:#929292}
+.actions{padding-top:5px;margin-top:26px}
+.btn{padding:12px 19px;border-radius:11px;font-size:10px;letter-spacing:.055em;background:#1c1c1c;border-color:#3b3b3b}
+.btn.primary{background:linear-gradient(135deg,#fb923c,#ea580c);border-color:#fb923c;color:#1a0d05;box-shadow:0 8px 24px rgba(234,88,12,.2)}
+.btn.primary:hover{background:linear-gradient(135deg,#fdba74,#f97316);box-shadow:0 10px 28px rgba(234,88,12,.28)}
+.sidebox{top:20px;background:radial-gradient(ellipse at 90% 0%,rgba(249,115,22,.16),transparent 48%),linear-gradient(145deg,#171717,#101010)}
+.sidebox h3{font-size:18px}.sidebox p{font-size:12px;line-height:1.9}.side-mark{color:#fb923c}
+.records-top{gap:18px;margin-bottom:22px}.records-tools{gap:10px}.records-tools input,.records-tools select{height:46px;border-radius:11px}
+.record-list{gap:13px}.record-card{padding:19px;border-radius:15px;background:linear-gradient(110deg,#171717,#111);border-color:rgba(255,255,255,.09)}
+.record-card:hover{border-color:rgba(249,115,22,.55);box-shadow:0 10px 28px rgba(0,0,0,.2)}
+.record-card h3{font-size:16px}.record-id{color:#fb923c}
+.record-status{padding:5px 10px;font-size:9px;letter-spacing:.08em}
+.empty{padding:48px 18px;border-color:#454545;background:rgba(255,255,255,.015)}
+.footer{margin-top:42px;padding-top:20px;color:#888}.footer strong{color:#f4f4f4}.footer .tagline{color:#fb923c}
+.print-thanks{color:#C2410C!important;font-weight:800!important;letter-spacing:.01em}
+@media print{.print-thanks{color:#C2410C!important;font-weight:800!important}}
+/* Keep form controls readable and consistent on mobile */
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebox{position:static}.header-right{display:none}}
+@media(max-width:600px){
+ .shell{width:calc(100% - 28px);padding:14px 0 38px}
+ header{margin-bottom:30px;padding:12px 13px;border-radius:15px}
+ .brand img{width:41px;height:41px;flex-basis:41px}.brand-name{font-size:14px}
+ .hero{padding-bottom:26px}.hero h1{font-size:clamp(38px,11vw,48px);margin-top:14px}.hero p{font-size:12px}
+ .tabs{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:5px}.tab{padding:11px 8px;font-size:10px}
+ .panel{padding:18px;border-radius:16px}.form-section{padding-bottom:22px;margin-bottom:22px}
+ .fields{grid-template-columns:1fr;gap:15px}.field.full{grid-column:auto}
+ input,select{height:48px}.actions{display:grid;grid-template-columns:1fr 1.25fr}.actions .btn{padding:13px 9px}
+ .records-top{align-items:stretch;flex-direction:column}.records-tools{display:grid;grid-template-columns:1fr}.records-tools input,.records-tools select{max-width:none;width:100%}
+ .record-card{gap:13px}.footer{gap:12px;font-size:8px;letter-spacing:.08em}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* ===== Fixes & access gate ===== */
+button:focus-visible,a:focus-visible{outline:2px solid #f97316;outline-offset:2px}
+@media screen{body.modal-open{overflow:hidden}}
+header{flex-wrap:wrap}
+.header-actions{display:flex;align-items:center;gap:16px}
+.lock-btn{background:transparent;border-color:rgba(255,255,255,.16);color:#cfcfcf}
+.card-actions .btn{white-space:nowrap}
+.record-card>div:first-child{min-width:0}
+.record-card h3{overflow-wrap:anywhere}
+.modal-head{position:sticky;top:0;z-index:2;padding:8px 0}
+/* tablet: paper must never be wider than the screen */
+@media screen and (max-width:830px){
+  .preview-paper{width:100%;max-width:210mm}
+  .contact-strip{font-size:8pt;flex-wrap:wrap;justify-content:center;white-space:normal;row-gap:1mm}
+}
+body.locked{overflow:hidden}
+body.locked .shell,body.locked #previewModal{display:none!important}
+.gate{display:none}
+body.locked .gate{display:flex}
+.gate{position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));overflow-y:auto;
+  background:radial-gradient(ellipse at 78% 6%,rgba(249,115,22,.24),transparent 42%),radial-gradient(ellipse at 6% 96%,rgba(249,115,22,.09),transparent 36%),#090909;
+  transition:opacity .4s ease}
+.gate:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 15%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 45%,#000 15%,transparent 70%)}
+.gate.leaving{opacity:0;pointer-events:none}
+.gate-card{position:relative;width:100%;max-width:440px;margin:auto;padding:46px 40px 34px;border:1px solid rgba(255,255,255,.1);border-radius:24px;
+  background:linear-gradient(145deg,rgba(24,24,24,.96),rgba(12,12,12,.98));box-shadow:0 34px 90px rgba(0,0,0,.55),0 0 0 1px rgba(249,115,22,.05);text-align:center}
+.gate-logo{display:block;width:68px;height:68px;object-fit:contain;margin:0 auto 22px}
+.gate-card h1{font:700 28px/1.1 'Space Grotesk',sans-serif;letter-spacing:.09em;margin:0 0 14px}
+.gate-tagline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 10px;font:700 10px 'Space Grotesk',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#b4b4b4}
+.gate-tagline i{width:4px;height:4px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px rgba(249,115,22,.6)}
+.gate-rule{width:56px;height:3px;border-radius:99px;margin:26px auto 28px;background:linear-gradient(90deg,#f97316,#fdba74);box-shadow:0 0 22px rgba(249,115,22,.35)}
+.gate-foot{margin-top:24px;font:700 9px 'Space Grotesk',sans-serif;letter-spacing:.2em;color:#7d7d7d}
+@media(max-width:480px){
+  .gate{padding:16px}
+  .gate-card{padding:36px 22px 26px;border-radius:20px}
+  .gate-logo{width:58px;height:58px;margin-bottom:18px}
+  .gate-card h1{font-size:23px}
+  .gate-tagline{font-size:9px;letter-spacing:.15em;gap:5px 8px}
+  .gate-rule{margin:22px auto 24px}
+  .gate-field input{font-size:16px}
+}
+@media(max-height:560px){.gate-card{padding-top:26px;padding-bottom:22px}.gate-logo{width:48px;height:48px;margin-bottom:12px}.gate-rule{margin:16px auto 18px}}
+.gate-field{position:relative;text-align:left}
+.gate-field input{padding-right:70px;text-transform:none}
+.gate-toggle{position:absolute;right:6px;top:6px;height:37px;padding:0 12px;border:0;border-radius:8px;background:#1c1c1c;color:#bbb;font-size:11px;font-weight:800}
+.gate-toggle:hover{color:#fff}
+.gate-error{min-height:16px;margin:8px 0 8px;color:#f87171;font-size:11px;font-weight:700;text-align:left;line-height:1.5}
+.gate-card .btn.primary{width:100%;padding:14px}
+.gate-card.shake{animation:gateShake .4s}
+@keyframes gateShake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* ===== On-screen agreement card (print still uses the A4 paper) ===== */
+@media print{.view-card{display:none!important}}
+.view-card{max-width:900px;margin:0 auto 40px;border:1px solid rgba(255,255,255,.1);border-radius:22px;overflow:hidden;
+  background:linear-gradient(145deg,rgba(22,22,22,.98),rgba(13,13,13,.98));box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.vc-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:24px 30px;border-bottom:1px solid rgba(255,255,255,.09);
+  background:radial-gradient(ellipse at 100% 0%,rgba(249,115,22,.16),transparent 55%)}
+.vc-brand{display:flex;align-items:center;gap:14px;min-width:0}
+.vc-brand img{width:46px;height:46px;object-fit:contain;flex:0 0 46px}
+.vc-brand strong{display:block;font:700 16px 'Space Grotesk',sans-serif;letter-spacing:.09em}
+.vc-brand span{display:block;margin-top:5px;font:700 9px 'Space Grotesk',sans-serif;letter-spacing:.16em;color:#9a9a9a}
+.vc-meta{display:flex;gap:26px;text-align:right}
+.vc-meta .vc-label{margin-bottom:4px}
+.vc-meta .vc-value{font:700 13px 'Space Grotesk',sans-serif}
+.vc-title{padding:30px 30px 8px}
+.vc-title .vc-kicker{font:800 10px 'Manrope',sans-serif;letter-spacing:.2em;color:var(--orange-soft);text-transform:uppercase}
+.vc-title h2{font:600 clamp(26px,4.2vw,38px)/1.1 'Space Grotesk',sans-serif;letter-spacing:-.03em;margin:12px 0 14px;overflow-wrap:anywhere}
+.vc-section{padding:22px 30px;border-top:1px solid rgba(255,255,255,.07)}
+.vc-section h3{display:flex;align-items:center;gap:11px;margin:0 0 18px;font:700 13px 'Space Grotesk',sans-serif;letter-spacing:.01em}
+.vc-section h3:before{content:"";width:3px;height:17px;border-radius:4px;background:var(--orange);box-shadow:0 0 14px rgba(249,115,22,.4)}
+.vc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px}
+.vc-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.vc-field{min-width:0}.vc-field.full{grid-column:1/-1}
+.vc-label{font:800 10px 'Manrope',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8d8d8d;margin-bottom:6px}
+.vc-value{font:600 14px/1.6 'Manrope',sans-serif;color:#f1f1f1;overflow-wrap:anywhere;white-space:pre-wrap}
+.vc-value.big{font:700 16px/1.4 'Space Grotesk',sans-serif}
+.vc-desc{padding:14px 16px;border:1px solid rgba(255,255,255,.09);border-left:3px solid var(--orange);border-radius:12px;background:rgba(255,255,255,.02)}
+.vc-sign{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.vc-person{padding:18px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.02);min-width:0}
+.vc-person .n{font:700 15px 'Space Grotesk',sans-serif;overflow-wrap:anywhere}
+.vc-person .t{margin-top:5px;font-size:12px;color:#b4b4b4;line-height:1.5}
+.vc-person .o{margin-top:4px;font:800 11px 'Manrope',sans-serif;letter-spacing:.05em;color:var(--orange-soft);overflow-wrap:anywhere}
+.vc-thanks{padding:18px 30px 24px;text-align:center;font:600 12px 'Manrope',sans-serif;color:var(--orange-soft);border-top:1px solid rgba(255,255,255,.07)}
+.modal-head .btn.small{padding:10px 16px}
+@media(max-width:640px){
+  .vc-head{padding:18px}.vc-meta{width:100%;justify-content:space-between;text-align:left}
+  .vc-title{padding:22px 18px 6px}.vc-section{padding:20px 18px}.vc-thanks{padding:16px 18px 20px}
+  .vc-grid,.vc-grid.three,.vc-sign{grid-template-columns:1fr}
+  .view-card{border-radius:18px;margin-bottom:24px}
+}
+
+/* ===== Behaviour: connection status, toasts, edit mode, view toggle ===== */
+header{margin-bottom:18px}
+.status-row{display:flex;margin:0 0 34px}
+.conn{display:inline-flex;align-items:center;gap:9px;max-width:100%;padding:8px 14px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(17,17,17,.8);color:#cfcfcf;font:700 11px 'Manrope',sans-serif;letter-spacing:.01em;cursor:default;text-align:left}
+.conn .dot{flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,.55);animation:connPulse 1.4s ease-in-out infinite}
+.conn[data-state=online] .dot{background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,.55);animation:none}
+.conn[data-state=offline],.conn[data-state=error]{border-color:rgba(239,68,68,.5);cursor:pointer}
+.conn[data-state=offline] .dot,.conn[data-state=error] .dot{background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,.55);animation:none}
+@keyframes connPulse{50%{opacity:.35}}
+.toast-wrap{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:200;display:grid;gap:10px;width:min(92vw,480px);pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.14);border-left-width:4px;background:#191919;box-shadow:0 18px 50px rgba(0,0,0,.55);font-size:12px;font-weight:700;line-height:1.55;animation:toastIn .25s ease}
+.toast.success{border-left-color:#22c55e}.toast.error{border-left-color:#ef4444}.toast.info{border-left-color:#f97316}
+.toast button{flex:0 0 auto;border:1px solid rgba(249,115,22,.55);background:rgba(249,115,22,.12);color:#fdba74;border-radius:9px;padding:7px 12px;font-size:11px;font-weight:800}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}}
+@media print{.toast-wrap,.status-row{display:none!important}}
+.edit-banner{display:flex;align-items:center;gap:10px;margin-bottom:24px;padding:13px 16px;border:1px solid rgba(249,115,22,.4);border-radius:12px;background:rgba(249,115,22,.08);font-size:12px;font-weight:800;line-height:1.5;overflow-wrap:anywhere}
+.edit-banner[hidden]{display:none}
+.edit-banner:before{content:"";flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:#f97316}
+.record-card.flash{animation:cardFlash 2.2s ease}
+@keyframes cardFlash{0%,60%{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.28)}}
+.modal-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.seg{display:inline-flex;padding:3px;border:1px solid rgba(255,255,255,.14);border-radius:11px;background:#141414}
+.seg button{border:0;background:transparent;color:#9a9a9a;font:800 10px 'Manrope',sans-serif;letter-spacing:.04em;padding:8px 12px;border-radius:8px}
+.seg button.active{background:rgba(249,115,22,.2);color:#fff}
+@media screen{#previewModal:not(.show-paper) .preview-wrap{display:none}#previewModal.show-paper .view-card{display:none}}
+.vc-contact{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;padding:14px 30px;border-bottom:1px solid rgba(255,255,255,.07);font:700 12px 'Manrope',sans-serif;color:#d8d8d8}
+.vc-contact a{color:inherit;text-decoration:none;text-transform:lowercase;overflow-wrap:anywhere}
+.vc-contact i{width:4px;height:4px;border-radius:50%;background:var(--orange)}
+.vc-title{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:26px 30px 6px}
+.vc-title h2{margin:0;font:700 clamp(22px,3.6vw,30px)/1.1 'Space Grotesk',sans-serif;letter-spacing:.02em;text-transform:uppercase}
+.vc-value.hl{font:700 17px/1.4 'Space Grotesk',sans-serif}
+@media(max-width:640px){
+  header{margin-bottom:14px}.status-row{margin-bottom:24px}
+  .vc-contact{padding:12px 18px;flex-direction:column;gap:6px}.vc-contact i{display:none}
+  .vc-title{padding:20px 18px 4px}
+  #previewModal .modal-actions{width:100%}
+  .seg{width:100%}.seg button{flex:1}
+}
+</style>
+</head>
+<body class="locked">
+<script>const GATE_HASH='3115ec96c802546e7395d319a9d1ab98401cb98e50dab652b2860d8cb6fd29d0';try{if(sessionStorage.getItem('fc_gate_ok')===GATE_HASH)document.body.classList.remove('locked')}catch(e){}</script>
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+ <form class="gate-card" id="gateForm" autocomplete="off">
+  <img class="gate-logo" src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt="">
+  <h1 id="gateTitle">F COMBINATOR</h1>
+  <div class="gate-tagline" aria-label="Technology, Innovation, Impact"><span>Technology</span><i aria-hidden="true"></i><span>Innovation</span><i aria-hidden="true"></i><span>Impact</span></div>
+  <div class="gate-rule" aria-hidden="true"></div>
+  <div class="gate-field">
+   <input id="gatePass" type="password" placeholder="Enter password" aria-label="Access password" autocomplete="off" autocapitalize="off" spellcheck="false">
+   <button type="button" class="gate-toggle" id="gateToggle" aria-label="Show password">Show</button>
+  </div>
+  <div class="gate-error" id="gateError" role="alert"></div>
+  <button class="btn primary" type="submit">Unlock workspace</button>
+  <div class="gate-foot">THINK LIKE AN ENGINEER.</div>
+ </form>
+</div>
+<div class="shell">
+<header>
+ <div class="brand"><img src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt="F COMBINATOR logo"><div><div class="brand-name">F COMBINATOR</div><div class="brand-sub">PARTNERSHIP MANAGER</div></div></div>
+ <div class="header-actions">
+  <div class="header-right">TECHNOLOGY · INNOVATION · IMPACT<br><span style="display:block;text-align:right;color:#fff;margin-top:6px">THINK LIKE AN ENGINEER.</span></div>
+  <button class="btn small lock-btn" type="button" id="lockBtn">Lock</button>
+ </div>
+</header>
+<div class="status-row"><button type="button" class="conn" id="connPill" data-state="connecting" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="connText">Connecting to Google Sheets…</span></button></div>
+<section class="hero">
+ <div class="eyebrow">Partnership workspace</div>
+ <h1>Build meaningful<br><span style="color:var(--orange)">partnerships.</span></h1>
+ <p>A focused workspace to organize partner information, manage collaboration records, and keep every partnership document organized.</p>
+ <div class="hero-line"></div>
+</section>
+<div class="tabs">
+ <button class="tab active" id="tabNew" onclick="showTab('new')">Partnership Agreement</button>
+ <button class="tab" id="tabRecords" onclick="showTab('records')">Previous Partnership <span id="recordCount"></span></button>
+</div>
+<section id="newView">
+<div class="layout">
+<form class="panel" id="partnershipForm">
+  <div class="edit-banner" id="editBanner" hidden><span id="editBannerText"></span></div>
+  <input type="hidden" name="id" id="recordId">
+ <div class="form-section">
+  <h2 class="section-title">Partner Organization Information</h2>
+  <div class="fields">
+   <div class="field full"><label>Partner Organization Name <span class="required">*</span></label><input name="orgName" required placeholder="Enter organization name"></div>
+   <div class="field"><label>Organization Type</label><select name="orgType"><option value="">Select type</option><option>STUDENT ORGANIZATION</option><option>COMMUNITY ORGANIZATION</option><option>EDUCATIONAL ORGANIZATION</option><option>STARTUP ORGANIZATION</option><option>NGO ORGANIZATION</option><option>INDIVIDUAL ORGANIZATION</option><option>OTHER ORGANIZATION</option></select></div>
+   <div class="field"><label>Organization Email</label><input name="email" type="email" placeholder="contact@example.com" class="lowercase-field"></div>
+   <div class="field"><label>Website</label><input name="website" type="text" inputmode="url" placeholder="example.org" class="lowercase-field" autocomplete="url"></div>
+  </div>
+ </div>
+ <div class="form-section">
+  <h2 class="section-title">Representative Information</h2>
+  <div class="fields">
+   <div class="field"><label>Partner Organization — Representative Name <span class="required">*</span></label><input name="partnerAuthName" required placeholder="Enter representative name"></div>
+   <div class="field"><label>Partner Organization — Designation <span class="required">*</span></label><input name="partnerAuthTitle" required placeholder="Enter designation"></div>
+   <div class="field"><label>Representative Email</label><input name="partnerAuthEmail" type="email" placeholder="representative@example.com" class="lowercase-field"></div>
+   <div class="field"><label>Representative Contact Number</label><input name="partnerAuthPhone" type="tel" value="+880 " placeholder="+880 1XXXXXXXXX"></div>
+  </div>
+ </div>
+ <div class="form-section">
+  <h2 class="section-title">Partnership Information</h2>
+  <div class="fields">
+   <div class="field"><label>Category <span class="required">*</span></label><select name="category" required><option value="">Select category</option><option>Technology and software</option><option>Education and learning</option><option>Startup and innovation</option><option>Event organising</option><option>Digital platform</option></select></div>
+   <div class="field"><label>Service Title <span class="required">*</span></label><input name="sector" type="text" required placeholder="Enter service title"></div>
+   <div class="field full"><label>Partnership Description <span class="required">*</span></label><textarea name="details" required maxlength="300" placeholder="Describe the purpose, scope, and key details of this partnership..."></textarea><div class="hint">Maximum 300 characters.</div></div>
+   <div class="field"><label>Partnership Start Date <span class="required">*</span></label><input name="startDate" id="startDate" type="date" required></div>
+   <div class="field"><label>Partnership End Date <span class="required">*</span></label><input name="endDate" id="endDate" type="date" required></div>
+   <div class="field full"><label>Duration</label><input name="duration" id="durationDisplay" readonly placeholder="Automatically calculated from start and end dates"><div class="hint">Duration is calculated automatically from the dates above.</div></div>
+  </div>
+ </div>
+ <div class="form-section">
+  <h2 class="section-title">F COMBINATOR Representative Information</h2>
+  <div class="fields">
+   <div class="field"><label>F COMBINATOR Representative <span class="required">*</span></label><select name="fcRepresentative" id="fcRepresentative" required><option value="">Select representative</option><option value="ABDULLAH AL RAFI">ABDULLAH AL RAFI</option><option value="RAYHAN UDDIN TAMIM">RAYHAN UDDIN TAMIM</option><option value="OMAR FARUQ">OMAR FARUQ</option></select></div>
+   <div class="field"><label>F COMBINATOR Representative Title <span class="required">*</span></label><input name="fcTitle" id="fcTitle" required readonly placeholder="Automatically selected from representative"></div>
+  </div>
+ </div>
+ <div class="actions"><button class="btn" type="reset">Clear Form</button><button class="btn primary" type="submit">Save Partnership</button></div>
+</form>
+<aside class="panel sidebox"><h3>Partnership Agreement.</h3><p>Fill in the details and press Save Partnership. The agreement opens right after saving so you can print it. Every saved agreement stays under Previous Partnership, where you can view or update it.</p><div class="side-mark">THINK LIKE AN ENGINEER.</div></aside>
+</div>
+</section>
+<section id="recordsView" style="display:none">
+ <div class="panel">
+  <div class="records-top"><div><h2 class="section-title" style="margin:0">Previous Partnership</h2><div class="hint">Search, sort by date, then view or edit the saved agreement</div></div><div class="records-tools"><input id="searchRecords" type="search" placeholder="Search by ID or organization" aria-label="Search partnerships"><select id="sortRecords" aria-label="Sort partnerships by date"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select></div></div>
+  <div class="record-list" id="recordList"></div>
+ </div>
+</section>
+<footer class="footer"><div><strong>F COMBINATOR</strong> &nbsp; PARTNERSHIP MANAGEMENT</div><div><span class="tagline">TECHNOLOGY · INNOVATION · IMPACT</span><br><span>THINK LIKE AN ENGINEER.</span></div></footer>
+</div>
+<div class="modal" id="previewModal">
+ <div class="modal-head"><strong id="modalTitle">Partnership Agreement</strong><div class="modal-actions"><div class="seg" role="group" aria-label="Agreement view"><button type="button" id="segScreen" class="active">Screen View</button><button type="button" id="segPaper">Print Layout</button></div><button class="btn small primary" type="button" onclick="printAgreement()">Print Agreement</button><button class="btn small" type="button" id="viewEditBtn">Edit</button><button class="btn small" type="button" onclick="closePreview()">Close</button></div></div>
+ <div class="view-card" id="viewCard"></div>
+ <div class="preview-wrap"><div class="preview-paper" id="paper"></div></div>
+</div>
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbyR1JbDw825TPv0YukMEdHrl_NJcn9LJvl1iXFBoVzWqVaucKj_yrxke8Cyn1Z51-8z/exec';
+const APP_TITLE = 'F COMBINATOR — Partnership Manager';
+let partnershipRecords = [];
+let recordsLoaded = false;
+let appStarted = false;
+let currentRecord = null;
+const $ = s => document.querySelector(s);
+
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'fcJsonp_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('The server did not respond. Please try again.'));
+    }, 20000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callbackName];
+      script.remove();
+    }
+    window[callbackName] = data => {
+      cleanup();
+      resolve(data);
+    };
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('Could not connect to the Google Sheets backend.'));
+    };
+    script.src = url + (url.includes('?') ? '&' : '?') +
+      'callback=' + encodeURIComponent(callbackName) +
+      '&_=' + Date.now();
+    document.body.appendChild(script);
+  });
+}
+
+/* ===== Toasts ===== */
+function toast(msg, type = 'info', opts = {}) {
+  const wrap = $('#toastWrap');
+  if (type === 'success') wrap.querySelectorAll('.toast.error').forEach(t => t.remove()); // clear outdated errors
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  const span = document.createElement('span'); span.textContent = msg; el.appendChild(span);
+  if (opts.action) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = opts.action.label;
+    b.onclick = () => { el.remove(); opts.action.run(); };
+    el.appendChild(b);
+  }
+  wrap.appendChild(el);
+  while (wrap.children.length > 3) wrap.firstChild.remove();
+  setTimeout(() => el.remove(), opts.duration || (type === 'error' ? 8000 : 4500));
+}
+
+/* ===== Connection status (internet + Google Sheets) ===== */
+let connState = 'connecting', connWasDown = false, lastSync = 0, flashId = null;
+const CONN_TEXT = {
+  connecting: 'Connecting to Google Sheets…',
+  online: 'Connected to Google Sheets',
+  offline: 'No internet connection — tap to retry',
+  error: 'Can’t reach Google Sheets — tap to retry'
+};
+function setConn(state) {
+  const prev = connState;
+  connState = state;
+  const pill = $('#connPill');
+  pill.dataset.state = state;
+  $('#connText').textContent = CONN_TEXT[state];
+  pill.title = state === 'online' && lastSync ? 'Last synced ' + new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+  if (state === 'offline' || state === 'error') {
+    if (prev !== state && appStarted) toast(state === 'offline'
+      ? 'Connection lost. You can keep filling the form, but saving needs internet.'
+      : 'Google Sheets is not responding. Your records on screen may be out of date.', 'error');
+    connWasDown = true;
+  } else if (state === 'online' && connWasDown) {
+    connWasDown = false;
+    toast('Back online. Reconnected to Google Sheets.', 'success');
+  }
+}
+function retryConnection() {
+  if (connState !== 'offline' && connState !== 'error') return;
+  setConn('connecting');
+  loadRecords(!recordsLoaded);
+}
+$('#connPill').addEventListener('click', retryConnection);
+window.addEventListener('offline', () => setConn('offline'));
+window.addEventListener('online', () => { if (appStarted) { setConn('connecting'); loadRecords(false); } });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && appStarted && Date.now() - lastSync > 60000) loadRecords(false);
+});
+
+function listError(msg) {
+  $('#recordList').innerHTML = '<div class="empty">Could not load records from Google Sheets.<br>' + escapeHTML(msg) +
+    '<br><button class="btn small" type="button" data-action="retry" style="margin-top:14px">Retry</button></div>';
+}
+
+async function loadRecords(showError = true) {
+  if (!navigator.onLine) {
+    setConn('offline');
+    if (showError && !recordsLoaded) listError('You are offline. Connect to the internet and try again.');
+    updateCount();
+    return false;
+  }
+  if (connState !== 'online') setConn('connecting');
+  try {
+    const result = await jsonp(API_URL + '?action=records');
+    if (!result || !result.success) throw new Error(result?.message || 'Could not load records.');
+    partnershipRecords = Array.isArray(result.records) ? result.records : [];
+    recordsLoaded = true;
+    lastSync = Date.now();
+    setConn('online');
+    updateCount();
+    renderRecords();
+    return true;
+  } catch (error) {
+    setConn(navigator.onLine ? 'error' : 'offline');
+    // Keep showing the records already on screen; only show the error when there is nothing to show.
+    if (showError && !recordsLoaded) listError(error.message);
+    updateCount();
+    return false;
+  }
+}
+
+function updateCount() {
+  $('#recordCount').textContent = partnershipRecords.length ? `(${partnershipRecords.length})` : '';
+}
+
+function showTab(which, opts = {}) {
+  $('#newView').style.display = which === 'new' ? 'block' : 'none';
+  $('#recordsView').style.display = which === 'records' ? 'block' : 'none';
+  $('#tabNew').classList.toggle('active', which === 'new');
+  $('#tabRecords').classList.toggle('active', which === 'records');
+  if (which === 'records' && !opts.skipLoad) { renderRecords(); loadRecords(); }
+}
+
+// Email addresses and website URLs remain lowercase during entry.
+const fcRepresentativeTitles = {
+  'ABDULLAH AL RAFI': 'CHIEF EXECUTIVE OFFICER',
+  'RAYHAN UDDIN TAMIM': 'CHIEF TECHNOLOGY OFFICER',
+  'OMAR FARUQ': 'CHIEF OPERATING OFFICER'
+};
+$('#fcRepresentative').addEventListener('change', event => {
+  $('#fcTitle').value = fcRepresentativeTitles[event.target.value] || '';
+});
+
+['email', 'website', 'partnerAuthEmail'].forEach(name => {
+  const field = $('#partnershipForm').elements.namedItem(name);
+  if (field) field.addEventListener('input', () => {
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    const lowered = field.value.toLowerCase();
+    if (field.value !== lowered) {
+      field.value = lowered;
+      try { field.setSelectionRange(start, end); } catch (_) {}
+    }
+  });
+});
+
+function formData() {
+  const data = Object.fromEntries(new FormData($('#partnershipForm')).entries());
+  // Keep general text uppercase, but normalize all email addresses and website URLs to lowercase.
+  const lowercaseKeys = new Set(['email', 'website', 'partnerAuthEmail']);
+  Object.keys(data).forEach(key => {
+    if (typeof data[key] !== 'string') return;
+    const field = $('#partnershipForm').elements.namedItem(key);
+    if (key === 'id') data[key] = data[key].trim();   // record id must stay exactly as stored
+    else if (lowercaseKeys.has(key)) data[key] = data[key].trim().toLowerCase();
+    else if (field && field.tagName === 'SELECT') data[key] = data[key].trim();
+    else data[key] = data[key].toUpperCase();
+  });
+  // The phone box is pre-filled with the country code; don't save it when nothing else was typed.
+  if (String(data.partnerAuthPhone || '').replace(/\s/g, '') === '+880') data.partnerAuthPhone = '';
+  return data;
+}
+
+function duration(a, b) {
+  if (!a || !b) return '';
+  const x = new Date(a + 'T00:00:00Z');
+  const y = new Date(b + 'T00:00:00Z');
+  if (Number.isNaN(x.getTime()) || Number.isNaN(y.getTime()) || y < x) return '';
+  let years = y.getUTCFullYear() - x.getUTCFullYear();
+  let months = y.getUTCMonth() - x.getUTCMonth();
+  let days = y.getUTCDate() - x.getUTCDate();
+  if (days < 0) {
+    months--;
+    const previousMonth = new Date(Date.UTC(y.getUTCFullYear(), y.getUTCMonth(), 0));
+    days += previousMonth.getUTCDate();
+  }
+  if (months < 0) { years--; months += 12; }
+  return [
+    years ? years + ' year' + (years !== 1 ? 's' : '') : '',
+    months ? months + ' month' + (months !== 1 ? 's' : '') : '',
+    days ? days + ' day' + (days !== 1 ? 's' : '') : ''
+  ].filter(Boolean).join(', ') || 'Less than a day';
+}
+
+function updateDuration() {
+  $('#durationDisplay').value = duration($('#startDate').value, $('#endDate').value);
+  $('#endDate').min = $('#startDate').value || '';
+}
+$('#startDate').addEventListener('change', updateDuration);
+$('#endDate').addEventListener('change', updateDuration);
+
+function setEditMode(r) {
+  const editing = !!r;
+  $('#partnershipForm button[type=submit]').textContent = editing ? 'Update Partnership' : 'Save Partnership';
+  $('#partnershipForm button[type=reset]').textContent = editing ? 'Cancel Edit' : 'Clear Form';
+  $('#editBanner').hidden = !editing;
+  if (editing) $('#editBannerText').textContent = 'Editing ' + getPrintId(r) + ' · ' + (r.orgName || '');
+  $('#tabNew').textContent = editing ? 'Edit Partnership' : 'Partnership Agreement';
+}
+function resetForm() {
+  $('#partnershipForm').reset();
+  $('#recordId').value = '';
+  $('#durationDisplay').value = '';
+  setEditMode(null);
+}
+$('#partnershipForm').addEventListener('reset', () => {
+  setTimeout(() => {
+    $('#recordId').value = '';
+    $('#durationDisplay').value = '';
+    $('#endDate').min = '';
+    setEditMode(null);
+  }, 0);
+});
+
+async function sendToBackend(payload) {
+  // text/plain is used to avoid a browser CORS preflight with Apps Script.
+  await fetch(API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+}
+
+$('#partnershipForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const submitButton = $('#partnershipForm button[type=submit]');
+  const d = formData();
+
+  if (!navigator.onLine) {
+    setConn('offline');
+    toast('You are offline. Your entries are still in the form — reconnect and press ' + (d.id ? 'Update' : 'Save') + ' Partnership again.', 'error');
+    return;
+  }
+  if (d.endDate && d.startDate && d.endDate < d.startDate) {
+    toast('End date must be on or after the start date.', 'error');
+    return;
+  }
+
+  d.duration = duration(d.startDate, d.endDate);
+  const resetButton = $('#partnershipForm button[type=reset]');
+  const isEdit = !!d.id;
+  submitButton.disabled = true; resetButton.disabled = true;
+  submitButton.textContent = isEdit ? 'Updating…' : 'Saving…';
+
+  try {
+    await sendToBackend({ action: 'save', data: d });
+
+    // Verify the write by reading the records back from the sheet.
+    let verified = false;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      const result = await jsonp(API_URL + '?action=records');
+      if (result && result.success) {
+        partnershipRecords = result.records || [];
+        recordsLoaded = true;
+        const same = (a, b) => String(a ?? '').trim() === String(b ?? '').trim();
+        const saved = partnershipRecords.find(r =>
+          d.id ? (
+            // Editing: the id always exists already, so check the NEW values have arrived.
+            String(r.id) === String(d.id) &&
+            ['orgName','orgType','sector','category','details','partnerAuthName','partnerAuthTitle','fcRepresentative']
+              .every(k => same(r[k], d[k])) &&
+            dateOnly(r.startDate) === d.startDate && dateOnly(r.endDate) === d.endDate
+          ) : (
+            r.orgName === d.orgName &&
+            r.partnerAuthName === d.partnerAuthName &&
+            r.fcRepresentative === d.fcRepresentative &&
+            r.fcTitle === d.fcTitle &&
+            r.startDate === d.startDate
+          )
+        );
+        if (saved) {
+          verified = true;
+          updateCount();
+          renderRecords();
+          lastSync = Date.now();
+          setConn('online');
+          resetForm();
+          showTab('records', { skipLoad: true });
+          if (isEdit) {
+            // Update: go back to the list and highlight the card; don't force the agreement open.
+            flashId = String(saved.id);
+            renderRecords();
+            setTimeout(() => { flashId = null; }, 3000);
+            toast('Partnership updated in Google Sheets.', 'success', { action: { label: 'View Agreement', run: () => openPreview(saved) } });
+          } else {
+            // New save: open the agreement so it can be printed straight away.
+            openPreview(saved);
+            toast('Saved to Google Sheets. The agreement is ready to print.', 'success');
+          }
+          break;
+        }
+      }
+    }
+
+    if (!verified) {
+      throw new Error('The request was sent, but the saved record could not be verified. Please refresh Previous Partnership before submitting again.');
+    }
+  } catch (error) {
+    const msg = navigator.onLine
+      ? (error.message || 'Could not save the partnership. Please try again.')
+      : 'Connection lost while saving. Open Previous Partnership to check whether it went through before you save again.';
+    if (!navigator.onLine) setConn('offline');
+    toast(msg, 'error', { duration: 10000 });
+    submitButton.textContent = isEdit ? 'Update Partnership' : 'Save Partnership';
+  } finally {
+    submitButton.disabled = false; resetButton.disabled = false;
+  }
+});
+
+function escapeHTML(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function prettyDate(s) {
+  if (!s) return '—';
+  const d = String(s).includes('T') ? new Date(s) : new Date(String(s).slice(0, 10) + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function dateOnly(value) {
+  if (!value) return '';
+  const d = String(value).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : '';
+}
+
+function partnershipStatus(r) {
+  const start = dateOnly(r.startDate);
+  const end = dateOnly(r.endDate);
+  if (!start || !end) return 'Due';
+  const today = new Date();
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  if (todayKey < start) return 'Due';
+  if (todayKey > end) return 'Ended';
+  return 'Processing';
+}
+
+let printIdSource = null, printIdMap = new Map();
+function getPrintId(r) {
+  if (printIdSource !== partnershipRecords) {
+    printIdSource = partnershipRecords;
+    printIdMap = new Map();
+    [...partnershipRecords].sort((a, b) => {
+      const da = String(a.createdAt || a.partnershipDate || a.startDate || '9999-12-31');
+      const db = String(b.createdAt || b.partnershipDate || b.startDate || '9999-12-31');
+      return da.localeCompare(db) || String(a.id || '').localeCompare(String(b.id || ''));
+    }).forEach((item, i) => printIdMap.set(String(item.id), i + 1));
+  }
+  const sequence = printIdMap.get(String(r.id)) || partnershipRecords.length + 1;
+  return `FCP${String(sequence).padStart(4, '0')}`;
+}
+
+function renderRecords() {
+  if (!recordsLoaded) {
+    $('#recordList').innerHTML = '<div class="empty">Loading partnerships…</div>';
+    return;
+  }
+  const q = ($('#searchRecords').value || '').trim().toLowerCase();
+  const dir = ($('#sortRecords')?.value || 'newest') === 'oldest' ? 1 : -1;
+  const list = partnershipRecords
+    .filter(r => !q || [getPrintId(r), r.id, r.orgName].some(v => String(v || '').toLowerCase().includes(q)))
+    .sort((a, b) => dir * (dateOnly(a.startDate) || '1970-01-01').localeCompare(dateOnly(b.startDate) || '1970-01-01'));
+  $('#recordList').innerHTML = list.length ? list.map(r => {
+    const status = partnershipStatus(r);
+    const id = escapeHTML(r.id);
+    return `
+    <article class="record-card${String(r.id) === flashId ? ' flash' : ''}">
+      <div>
+        <div class="record-id">${escapeHTML(getPrintId(r))} · ${escapeHTML(r.category)}</div>
+        <h3>${escapeHTML(r.orgName)}</h3>
+        <p>${escapeHTML(r.sector)} · ${escapeHTML(r.duration || duration(dateOnly(r.startDate), dateOnly(r.endDate)))}<br>
+        ${escapeHTML(prettyDate(r.startDate))} — ${escapeHTML(prettyDate(r.endDate))}</p>
+        <span class="record-status ${status.toLowerCase()}">${escapeHTML(status)}</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn small primary" type="button" data-action="view" data-id="${id}">View Agreement</button>
+        <button class="btn small" type="button" data-action="edit" data-id="${id}">Edit</button>
+      </div>
+    </article>`;
+  }).join('') : `<div class="empty">${q ? 'No partnerships match your search.' : 'No previous partnerships found.'}</div>`;
+}
+
+$('#recordList').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'retry') { setConn('connecting'); loadRecords(true); }
+  else if (btn.dataset.action === 'view') viewRecord(btn.dataset.id);
+  else if (btn.dataset.action === 'edit') editRecord(btn.dataset.id);
+});
+
+function findRecord(id) {
+  return partnershipRecords.find(r => String(r.id) === String(id));
+}
+
+function viewRecord(id) {
+  const r = findRecord(id);
+  if (r) openPreview(r);
+}
+
+function editRecord(id) {
+  const r = findRecord(id);
+  if (!r) return;
+  showTab('new');
+  $('#recordId').value = r.id || '';
+  Object.keys(r).forEach(key => {
+    const field = $('#partnershipForm').elements.namedItem(key);
+    if (field && key !== 'id') {
+      const lowerKey = ['email', 'website', 'partnerAuthEmail'].includes(key);
+      const isDate = key === 'startDate' || key === 'endDate';
+      const value = isDate ? dateOnly(r[key]) : (typeof r[key] === 'string' ? (lowerKey ? r[key].toLowerCase() : r[key]) : (r[key] ?? ''));
+      if (field.tagName === 'SELECT' && value !== '' && !Array.from(field.options).some(option => option.value === value)) {
+        const legacyOption = document.createElement('option');
+        legacyOption.value = value; legacyOption.textContent = value;
+        field.appendChild(legacyOption);
+      }
+      field.value = value;
+    }
+  });
+  $('#fcTitle').value = fcRepresentativeTitles[$('#fcRepresentative').value] || r.fcTitle || '';
+  updateDuration();
+  setEditMode(r);
+  $('#partnershipForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openPreview(r) {
+  currentRecord = r;
+  document.title = getPrintId(r);
+  const date = prettyDate(r.partnershipDate || r.createdAt || new Date().toISOString());
+  const meta = (label, value) => `<div class="meta-item"><span>${label}</span><strong>${escapeHTML(value || '—')}</strong></div>`;
+  const printField = (label, value, full = false, highlight = false, details = false) =>
+    `<div class="print-field ${full ? 'full' : ''} ${highlight ? 'print-highlight' : ''} ${details ? 'print-details' : ''} ${label === 'Email Address' ? 'email-field' : ''} ${label === 'Website Address' ? 'website-field' : ''}">
+      <div class="print-label">${label}</div><div class="print-value">${escapeHTML(value || '—')}</div></div>`;
+  const partnerName = r.partnerAuthName || '';
+  const partnerTitle = r.partnerAuthTitle || '';
+  const partnerOrg = r.orgName || 'PARTNER ORGANIZATION';
+  const fcName = r.fcRepresentative || '';
+  const fcTitle = r.fcTitle || '';
+
+  $('#paper').innerHTML = `
+    <div class="print-head">
+      <div class="print-brand-group">
+        <img class="print-logo" src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt="F COMBINATOR">
+        <div><div class="print-brand">F COMBINATOR</div><div class="print-kicker">TECHNOLOGY · INNOVATION · IMPACT</div><div class="print-kicker">THINK LIKE AN ENGINEER.</div></div>
+      </div>
+      <div class="print-meta">${meta('PARTNERSHIP DATE', date)}${meta('PARTNERSHIP ID', getPrintId(r))}</div>
+    </div>
+    <div class="contact-strip">
+      <span class="contact-item"><a href="https://fcombinator.vercel.app">fcombinator.vercel.app</a></span>
+      <span class="contact-separator">|</span>
+      <span class="contact-item"><a href="mailto:services.fcombinator@gmail.com">services.fcombinator@gmail.com</a></span>
+      <span class="contact-separator">|</span>
+      <span class="contact-item"><a href="tel:+8801973226750">+880 1973-226750</a></span>
+    </div>
+    <div class="print-heading"><h1 class="print-title">PARTNERSHIP AGREEMENT</h1></div>
+    <section class="print-section"><h3>PARTNERSHIP ORGANIZATION INFORMATION</h3><div class="print-grid">
+      ${printField('Organization Name', r.orgName, true, true)}
+      ${printField('Organization Type', r.orgType)}
+      ${printField('Email Address', String(r.email || '').toLowerCase())}
+      ${printField('Website Address', String(r.website || '').toLowerCase())}
+    </div></section>
+    <section class="print-section"><h3>REPRESENTATIVE INFORMATION</h3><div class="print-grid">
+      ${printField('Representative Name', partnerName, true, true)}
+      ${printField('Designation', partnerTitle)}
+      ${printField('Contact Number', r.partnerAuthPhone)}
+      ${printField('Email Address', String(r.partnerAuthEmail || '').toLowerCase())}
+    </div></section>
+    <section class="print-section"><h3>PARTNERSHIP INFORMATION</h3><div class="print-grid partnership-grid">
+      ${printField('Category', r.category, false, true)}
+      ${printField('Service Title', r.sector, false, true)}
+      <div class="print-grid-three">
+        ${printField('Start Date', prettyDate(r.startDate))}
+        ${printField('End Date', prettyDate(r.endDate))}
+        ${printField('Duration', r.duration || duration(r.startDate, r.endDate), false, true)}
+      </div>
+      ${printField('Partnership Description', r.details, true, false, true)}
+    </div></section>
+    <div class="signatures">
+      <div class="sign-person"><div class="sign-person-name">${escapeHTML(partnerName)}</div><div class="sign-person-title">${escapeHTML(partnerTitle)}</div><div class="sign-person-org">${escapeHTML(partnerOrg)}</div></div>
+      <div class="sign-person"><div class="sign-person-name">${escapeHTML(fcName)}</div><div class="sign-person-title">${escapeHTML(fcTitle)}</div><div class="sign-person-org">F COMBINATOR</div></div>
+    </div>
+    <div class="print-thanks">Thank you for being a partner of F COMBINATOR.</div>`;
+  const vf = (label, value, cls = '') => `<div class="vc-field ${cls}"><div class="vc-label">${label}</div><div class="vc-value ${cls.includes('big') ? 'big' : ''}">${escapeHTML(value || '—')}</div></div>`;
+  const status = partnershipStatus(r);
+  $('#viewCard').innerHTML = `
+    <div class="vc-head">
+      <div class="vc-brand"><img src="https://lh3.googleusercontent.com/d/1FATQh0xRP-vPCwVz5RT2zTWKWpwt8wbW" alt=""><div><strong>F COMBINATOR</strong><span>TECHNOLOGY · INNOVATION · IMPACT</span></div></div>
+      <div class="vc-meta">${vf('Partnership ID', getPrintId(r))}${vf('Partnership date', date)}</div>
+    </div>
+    <div class="vc-contact"><a href="https://fcombinator.vercel.app" target="_blank" rel="noopener">fcombinator.vercel.app</a><i></i><a href="mailto:services.fcombinator@gmail.com">services.fcombinator@gmail.com</a><i></i><a href="tel:+8801973226750">+880 1973-226750</a></div>
+    <div class="vc-title"><h2>Partnership Agreement</h2><span class="record-status ${status.toLowerCase()}" style="margin-top:0">${escapeHTML(status)}</span></div>
+    <section class="vc-section"><h3>Partnership organization information</h3><div class="vc-grid">
+      ${vf('Organization name', r.orgName, 'full hl')}
+      ${vf('Organization type', r.orgType)}
+      ${vf('Email address', String(r.email || '').toLowerCase())}
+      ${vf('Website address', String(r.website || '').toLowerCase())}
+    </div></section>
+    <section class="vc-section"><h3>Representative information</h3><div class="vc-grid">
+      ${vf('Representative name', partnerName, 'full hl')}
+      ${vf('Designation', partnerTitle)}
+      ${vf('Contact number', r.partnerAuthPhone)}
+      ${vf('Email address', String(r.partnerAuthEmail || '').toLowerCase())}
+    </div></section>
+    <section class="vc-section"><h3>Partnership information</h3><div class="vc-grid">
+      ${vf('Category', r.category)}
+      ${vf('Service title', r.sector)}
+    </div>
+    <div class="vc-grid three" style="margin-top:18px">
+      ${vf('Start date', prettyDate(r.startDate))}
+      ${vf('End date', prettyDate(r.endDate))}
+      ${vf('Duration', r.duration || duration(dateOnly(r.startDate), dateOnly(r.endDate)))}
+    </div>
+    <div class="vc-field vc-desc" style="margin-top:18px"><div class="vc-label">Partnership description</div><div class="vc-value">${escapeHTML(r.details || '—')}</div></div>
+    </section>
+    <section class="vc-section"><div class="vc-sign">
+      <div class="vc-person"><div class="n">${escapeHTML(partnerName || '—')}</div><div class="t">${escapeHTML(partnerTitle)}</div><div class="o">${escapeHTML(partnerOrg)}</div></div>
+      <div class="vc-person"><div class="n">${escapeHTML(fcName || '—')}</div><div class="t">${escapeHTML(fcTitle)}</div><div class="o">F COMBINATOR</div></div>
+    </div></section>
+    <div class="vc-thanks">Thank you for being a partner of F COMBINATOR.</div>`;
+  $('#modalTitle').textContent = 'Partnership Agreement · ' + getPrintId(r);
+  $('#previewModal').classList.remove('show-paper');
+  $('#segScreen').classList.add('active'); $('#segPaper').classList.remove('active');
+  $('#viewEditBtn').onclick = () => { const id = r.id; closePreview(); editRecord(id); };
+  $('#previewModal').classList.add('open');
+  document.body.classList.add('modal-open');
+  $('#previewModal').scrollTop = 0;
+}
+
+function closePreview() {
+  $('#previewModal').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  document.title = APP_TITLE;
+}
+
+function printAgreement() {
+  if (currentRecord) document.title = getPrintId(currentRecord);
+  window.print();
+}
+window.addEventListener('afterprint', () => {
+  document.title = APP_TITLE;
+});
+
+$('#segScreen').addEventListener('click', () => { $('#previewModal').classList.remove('show-paper'); $('#segScreen').classList.add('active'); $('#segPaper').classList.remove('active'); });
+$('#segPaper').addEventListener('click', () => { $('#previewModal').classList.add('show-paper'); $('#segPaper').classList.add('active'); $('#segScreen').classList.remove('active'); });
+$('#searchRecords').addEventListener('input', renderRecords);
+$('#sortRecords').addEventListener('change', renderRecords);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('#previewModal').classList.contains('open')) closePreview();
+});
+
+// Connect every label to its input so clicking a label focuses the field.
+document.querySelectorAll('.field').forEach((f, i) => {
+  const l = f.querySelector('label'), c = f.querySelector('input,select,textarea');
+  if (l && c) { if (!c.id) c.id = 'f_' + (c.name || i); l.htmlFor = c.id; }
+});
+
+/* ===== Access gate =====
+   The password is stored only as a salted SHA-256 hash, so it is not readable in the page source.
+   This keeps casual visitors out; it is not server-side security. */
+function sha256Fallback(msg){
+  const bytes=new TextEncoder().encode(msg);
+  const rr=(v,a)=>(v>>>a)|(v<<(32-a));
+  const K=[],H=[],comp={};
+  for(let c=2,n=0;n<64;c++){
+    if(!comp[c]){
+      for(let i=0;i<313;i+=c)comp[i]=c;
+      if(n<8)H[n]=(Math.pow(c,.5)*4294967296)|0;
+      K[n++]=(Math.pow(c,1/3)*4294967296)|0;
+    }
+  }
+  const total=(((bytes.length+8)>>6)+1)*16;
+  const words=new Array(total).fill(0);
+  for(let i=0;i<bytes.length;i++)words[i>>2]|=bytes[i]<<(24-(i%4)*8);
+  words[bytes.length>>2]|=0x80<<(24-(bytes.length%4)*8);
+  words[total-1]=bytes.length*8;
+  let h=H.slice(0,8);
+  for(let j=0;j<total;j+=16){
+    const w=words.slice(j,j+16);
+    const old=h.slice(0);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15],w2=w[i-2],a=h[0],e=h[4];
+      if(i>=16)w[i]=(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0;
+      const t1=h[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&h[5])^(~e&h[6]))+K[i]+w[i];
+      const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));
+      h=[(t1+t2)|0].concat(h);
+      h[4]=(h[4]+t1)|0;
+    }
+    h=h.slice(0,8);
+    for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;
+  }
+  return h.map(x=>('00000000'+(x>>>0).toString(16)).slice(-8)).join('');
+}
+async function hashPassword(pw) {
+  const msg = 'fcombinator-gate|' + pw;
+  try {
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (_) {}
+  return sha256Fallback(msg);
+}
+
+function startApp() {
+  if (appStarted) return;
+  appStarted = true;
+  loadRecords(false);
+}
+
+const gate = { fails: 0, lockedUntil: 0, timer: null };
+const gateEls = { card: $('#gateForm'), pass: $('#gatePass'), err: $('#gateError'), root: $('#gate') };
+
+function gateMessage(text) { gateEls.err.textContent = text; }
+
+$('#gateToggle').addEventListener('click', () => {
+  const show = gateEls.pass.type === 'password';
+  gateEls.pass.type = show ? 'text' : 'password';
+  $('#gateToggle').textContent = show ? 'Hide' : 'Show';
+  $('#gateToggle').setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  gateEls.pass.focus();
+});
+
+gateEls.card.addEventListener('submit', async e => {
+  e.preventDefault();
+  const now = Date.now();
+  if (now < gate.lockedUntil) return;
+  const pw = gateEls.pass.value;
+  if (!pw) { gateMessage('Enter the password.'); return; }
+  const hash = await hashPassword(pw);
+  if (hash === GATE_HASH) {
+    gate.fails = 0;
+    try { sessionStorage.setItem('fc_gate_ok', GATE_HASH); } catch (_) {}
+    gateMessage('');
+    gateEls.root.classList.add('leaving');
+    setTimeout(() => {
+      document.body.classList.remove('locked');
+      gateEls.root.classList.remove('leaving');
+      gateEls.pass.value = '';
+      startApp();
+    }, 380);
+    return;
+  }
+  gate.fails++;
+  gateEls.pass.value = '';
+  gateEls.card.classList.remove('shake'); void gateEls.card.offsetWidth; gateEls.card.classList.add('shake');
+  if (gate.fails >= 5) {
+    gate.lockedUntil = Date.now() + 30000;
+    gate.fails = 0;
+    clearInterval(gate.timer);
+    const tick = () => {
+      const left = Math.ceil((gate.lockedUntil - Date.now()) / 1000);
+      if (left <= 0) { clearInterval(gate.timer); gateMessage(''); return; }
+      gateMessage('Too many attempts. Try again in ' + left + 's.');
+    };
+    tick(); gate.timer = setInterval(tick, 1000);
+  } else {
+    gateMessage('Wrong password. Please try again.');
+  }
+  gateEls.pass.focus();
+});
+
+$('#lockBtn').addEventListener('click', () => {
+  try { sessionStorage.removeItem('fc_gate_ok'); } catch (_) {}
+  closePreview();
+  resetForm();
+  showTab('new');
+  partnershipRecords = []; recordsLoaded = false; appStarted = false; connWasDown = false; setConn('connecting');
+  updateCount(); renderRecords();
+  document.body.classList.add('locked');
+  gateMessage('');
+  gateEls.pass.focus();
+});
+
+if (document.body.classList.contains('locked')) gateEls.pass.focus();
+else startApp();
+</script>
+</body></html>
